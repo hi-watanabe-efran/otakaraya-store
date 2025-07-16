@@ -216,6 +216,7 @@
                   <img
                     class="saitei_bt"
                     src="{{ 'saisei_bt.png' | asset_url }}"
+                    alt="再生ボタン"
                   >
 
                   <img
@@ -256,48 +257,103 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const root = '#video-carousel-{{ section.id }}';
-    const modal = document.getElementById('vc-modal-{{ section.id }}');
-    const inner = modal.querySelector('.vc-modal__inner');
+  
+   const root = '#video-carousel-{{ section.id }}';
+    const rootElement = document.querySelector(root);
 
-    /* ---------- Splide ---------- */
-    if (typeof Splide !== 'undefined' && document.querySelector(root)) {
-      const splide = new Splide(root, {
-        type: 'loop',
-        perPage: 1,
-        focus: 'center',
-        arrows: true,
-        pagination: true,
-        padding: '30%',
-        autoplay: true,
-        speed: 1000,
-        interval: 3000,
-        breakpoints: { 750: { padding: '10%' } },
-      });
-
-      /* 中央スライドに is-active を付与 */
-      const markActive = () => {
-        splide.Components.Slides.forEach((Slide) => {
-          Slide.slide.classList.toggle('is-active', Slide.index === splide.index);
-        });
-      };
-      splide.on('mounted move', markActive);
-      splide.mount();
+    // Splideが読み込まれていない、または対象要素がなければ処理を中断
+    if (typeof Splide === 'undefined' || !rootElement) {
+      return;
     }
 
-    /* ---------- Vimeo サムネイル ---------- */
-    document.querySelectorAll(root + ' .splide__slide[data-provider="vimeo"]').forEach((slide) => {
-      const id = slide.dataset.videoId;
-      fetch(`https://vimeo.com/api/v2/video/${id}.json`)
-        .then((r) => r.json())
-        .then((d) => {
-          if (d && d[0] && d[0].thumbnail_large) {
-            slide.innerHTML = `<img src="${d[0].thumbnail_large}" loading="lazy" alt="Vimeo thumbnail">`;
+    const promises = [];
+
+    /* ---------- YouTube 動画の有効性チェック ---------- */
+    // 'youtube'のプロバイダーを持つスライドをすべて選択
+    document.querySelectorAll(`${root} .splide__slide[data-provider="youtube"]`).forEach((slide) => {
+      const videoId = slide.dataset.videoId;
+      // oEmbed APIを使い、動画の存在を確認するPromiseを作成
+      const promise = fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
+        .then(response => {
+          // response.okがfalseの場合 (404 Not Found, 403 Forbiddenなど)
+          // 動画は非公開、削除済み、またはIDが間違っている
+          if (!response.ok) {
+            console.warn(`YouTube video with ID ${videoId} is not available. Removing from carousel.`);
+            slide.remove(); // スライドをDOMから削除
+          }
+        })
+        .catch(error => {
+          // ネットワークエラーなど
+          console.error(`Error checking YouTube video ${videoId}:`, error);
+          slide.remove(); // エラー時もスライドを削除
+        });
+      promises.push(promise);
+    });
+
+    /* ---------- Vimeo サムネイル取得 ---------- */
+    // 'vimeo'のプロバイダーを持つスライドをすべて選択
+    document.querySelectorAll(`${root} .splide__slide[data-provider="vimeo"]`).forEach((slide) => {
+      const videoId = slide.dataset.videoId;
+      const promise = fetch(`https://vimeo.com/api/v2/video/${videoId}.json`)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data[0] && data[0].thumbnail_large) {
+            slide.innerHTML = `<img src="${data[0].thumbnail_large}" loading="lazy" alt="Vimeo thumbnail">`;
+          } else {
+            // Vimeo動画が見つからない場合もスライドを削除
+            slide.remove();
           }
         })
         .catch(() => {
-          /* ignore */
+          // エラー時もスライドを削除
+          slide.remove();
         });
+      promises.push(promise);
+    });
+
+    /* ---------- すべてのチェック完了後にSplideを初期化 ---------- */
+    // Promise.allSettled を使い、すべてのAPIチェックが終わるのを待つ
+    Promise.allSettled(promises).then(() => {
+      // 有効なスライドが1つ以上残っている場合のみSplideを初期化
+      if (rootElement.querySelectorAll('.splide__slide').length > 0) {
+        const splide = new Splide(root, {
+          type: 'loop',
+          perPage: 1,
+          focus: 'center',
+          arrows: true,
+          pagination: true,
+          padding: '30%',
+          autoplay: true,
+          speed: 1000,
+          interval: 3000,
+          breakpoints: { 750: { padding: '10%' } },
+        });
+
+        /* 中央スライドに is-active を付与 */
+        const markActive = () => {
+          splide.Components.Slides.forEach((Slide) => {
+            Slide.slide.classList.toggle('is-active', Slide.index === splide.index);
+          });
+        };
+
+        splide.on('mounted move', markActive);
+        splide.mount();
+      } else {
+        // 表示できる動画がない場合、カルーセル全体を非表示にする
+        rootElement.style.display = 'none';
+        const heading = document.querySelector('.carousel-heading');
+        const subheading = document.querySelector('.carousel-subheading');
+        if(heading) heading.style.display = 'none';
+        if(subheading) subheading.style.display = 'none';
+
+        // VIEW MOREボタンも非表示にする
+        const btnArea = document.querySelector('.carousel-btn-area');
+        if (btnArea) {
+            btnArea.style.display = 'none';
+        }
+
+        console.warn('No valid videos found to display in the carousel.');
+      }
     });
 
     /* ---------- モーダル再生 ---------- */

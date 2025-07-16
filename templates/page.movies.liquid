@@ -4,386 +4,387 @@
   ❷ 最初の 2 本は大きなサムネイル、その後は 3 列グリッドでサムネイル + タイトルを表示
   ❸ クリックでモーダル再生（YouTube ／ Vimeo 自動判定）
 {%- endcomment -%}
+<!-- ---------- STYLE ---------- -->
+<style>
+  .movies-page {
+    padding: 60px 0;
+    background: #f1f1ee;
+  }
 
-<div class="movies-page">
-  <!-- ---------- STYLE ---------- -->
-  <style>
-    .movies-page {
-      padding: 60px 0;
-      background: #f1f1ee;
-    }
+  .movies-page h1 {
+    text-align: center;
+    font-family: 'Noto Sans JP';
+    letter-spacing: 2px;
+    font-size: 3rem;
+  }
 
-    .movies-page h1 {
-      text-align: center;
-      font-family: 'Noto Sans JP';
-      letter-spacing: 2px;
-      font-size: 3rem;
-    }
+  .movies-page h1 span.sub_title {
+    font-size: 0.6em;
+  }
 
-    .movies-page h1 span.sub_title {
-      font-size: 0.6em;
-    }
+  .movies-page h2 {
+    font-family: 'Noto Sans JP';
+    letter-spacing: 2px;
+    font-size: 2.8rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
+  .movies-page h2 span.gradation {
+    font-size: 0.7em;
+    background: linear-gradient(180deg, rgba(224, 76, 76, 1) 0%, rgba(253, 29, 29, 1) 50%, rgba(255, 108, 82, 1) 100%);
+    padding: 0 24px;
+    color: white;
+    font-family: 'Noto Serif Japanese';
+    border-radius: 24px;
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  .movies-page section {
+    max-width: 1920px;
+    margin: auto;
+    padding: 0 5%;
+  }
+
+  .movies-featured {
+    margin-bottom: 32px;
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .movies-list {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .movie-card {
+    cursor: pointer;
+    position: relative;
+  }
+
+  .movie-card .card_img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .movie-card .saitei_bt_thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+
+  .movie-card .card_img:hover {
+    opacity: 0.6;
+  }
+
+  .saitei_bt {
+    position: absolute;
+    z-index: 1;
+    opacity: 0.9;
+  }
+
+  .movies-featured .saitei_bt {
+    width: 100px;
+  }
+
+  .movies-list .saitei_bt {
+    width: 66px;
+  }
+
+  .movie-title {
+    margin-top: 8px;
+    font-family: 'Noto Sans JP';
+    line-height: 1.4;
+    font-weight: 500;
+  }
+
+  .movies-featured .movie-title {
+    font-size: 2.6rem;
+  }
+
+  .movies-list .movie-title {
+    font-size: 2rem;
+  }
+
+  /* ---- Modal ---- */
+  .movies-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+  }
+  .movies-modal[hidden] {
+    display: none !important;
+  }
+
+  .movies-modal__content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .movies-modal__inner {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+
+  .movies-modal__content iframe {
+    position: relative;
+    width: 70%;
+    aspect-ratio: 16 / 9;
+    max-height: 100%;
+    margin: auto;
+  }
+
+  .movies-modal__close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: none;
+    border: none;
+    font-size: 3vw;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Noto Sans JP';
+  }
+  body.movies-modal-open {
+    overflow: hidden;
+  }
+
+  @media (max-width: 749px) {
     .movies-page h2 {
-      font-family: 'Noto Sans JP';
-      letter-spacing: 2px;
-      font-size: 2.8rem;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .movies-page h2 span.gradation {
-      font-size: 0.7em;
-      background: linear-gradient(
-        180deg,
-        rgba(224, 76, 76, 1) 0%,
-        rgba(253, 29, 29, 1) 50%,
-        rgba(255, 108, 82, 1) 100%
-      );
-      padding: 0 24px;
-      color: white;
-      font-family: 'Noto Serif Japanese';
-      border-radius: 24px;
-      font-style: italic;
-      line-height: 1.4;
-    }
-
-    .movies-page section {
-      max-width: 1920px;
-      margin: auto;
-      padding: 0 5%;
+      font-size: 24px;
     }
 
     .movies-featured {
-      margin-bottom: 32px;
-      display: grid;
-      gap: 24px;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(1, 1fr);
     }
 
     .movies-list {
-      display: grid;
-      gap: 24px;
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .movie-card {
-      cursor: pointer;
-      position: relative;
-    }
-
-    .movie-card .card_img {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .movie-card .saitei_bt_thumbnail {
-      width: 100%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      border-radius: 12px;
-    }
-
-    .movie-card .card_img:hover {
-      opacity: 0.6;
-    }
-
-    .saitei_bt {
-      position: absolute;
-      z-index: 1;
-      opacity: 0.9;
-    }
-
-    .movies-featured .saitei_bt {
-      width: 100px;
-    }
-
-    .movies-list .saitei_bt {
-      width: 66px;
-    }
-
-    .movie-title {
-      margin-top: 8px;
-      font-family: 'Noto Sans JP';
-      line-height: 1.4;
-      font-weight: 500;
+      grid-template-columns: repeat(2, 1fr);
     }
 
     .movies-featured .movie-title {
-      font-size: 2.6rem;
+      font-size: 1.6rem;
     }
 
     .movies-list .movie-title {
-      font-size: 2rem;
+      font-size: 1.2rem;
     }
 
-    /* ---- Modal ---- */
-    .movies-modal {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 9999;
-    }
-    .movies-modal[hidden] {
-      display: none !important;
+    .movies-featured .saitei_bt {
+      width: 66px;
     }
 
-    .movies-modal__content {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    .movies-modal__inner {
-      display: flex;
-      width: 100%;
-      height: 100%;
+    .movies-list .saitei_bt {
+      width: 33px;
     }
 
     .movies-modal__content iframe {
-      position: relative;
-      width: 70%;
-      aspect-ratio: 16 / 9;
-      max-height: 100%;
-      margin: auto;
+      width: 100%;
     }
 
     .movies-modal__close {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      background: none;
-      border: none;
-      font-size: 3vw;
-      color: #fff;
-      cursor: pointer;
-      font-family: 'Noto Sans JP';
+      font-size: 8vw;
     }
-    body.movies-modal-open {
-      overflow: hidden;
-    }
+  }
+</style>
 
-    @media (max-width: 749px) {
-      .movies-page h2 {
-        font-size: 24px;
-      }
-
-      .movies-featured {
-        grid-template-columns: repeat(1, 1fr);
-      }
-
-      .movies-list {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .movies-featured .movie-title {
-        font-size: 1.6rem;
-      }
-
-      .movies-list .movie-title {
-        font-size: 1.2rem;
-      }
-
-      .movies-featured .saitei_bt {
-        width: 66px;
-      }
-
-      .movies-list .saitei_bt {
-        width: 33px;
-      }
-
-      .movies-modal__content iframe {
-        width: 100%;
-      }
-
-      .movies-modal__close {
-        font-size: 8vw;
-      }
-    }
-  </style>
-
+<div class="movies-page">
   <section>
     <h1>
       MOVIE<br>
       <span class="sub_title">動画</span>
     </h1>
 
-    <!-- ---------- LIQUID: 動画 ID 取得 ---------- -->
-    {% assign raw_ids = page.content | replace: '</p>', ',' | strip_html %}
-    {% assign normalized = raw_ids | replace: ' ,', ',' | replace: ', ', ',' %}
-    {% assign full_list = normalized | split: ',' %}
+    <script id="video-data-source" type="application/json">
+      {%- assign raw_ids = page.content | replace: '</p>', ',' | strip_html -%}
+      {%- assign normalized = raw_ids | replace: ' ,', ',' | replace: ', ', ',' -%}
+      {%- assign full_list = normalized | split: ',' -%}
 
-    {% assign featured = full_list | slice: 0, 2 %}
-    {% assign others = full_list | slice: 2, full_list.size %}
+      [{%- for item in full_list -%}
+        {%- assign token = item | strip -%}
+        {%- if token == '' %}{% continue %}{% endif -%}
+
+        {%- if token contains ':' -%}
+          {%- assign provider = token | split: ':' | first | downcase | strip | json -%}
+          {%- assign video_id = token | split: ':' | last | strip | json -%}
+        {%- else -%}
+          {%- assign provider = 'youtube' | json -%}
+          {%- assign video_id = token | json -%}
+        {%- endif -%}
+
+        {"provider": {{ provider }}, "id": {{ video_id }}}{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}]
+    </script>
 
     <h2>新着動画<span class="gradation">New</span></h2>
-
-    <!-- ---------- FEATURED (最初の 2 本) ---------- -->
-    <div class="movies-featured">
-      {% for item in featured %}
-        {% assign token = item | strip %}
-        {% if token == '' %}{% continue %}{% endif %}
-
-        {% if token contains ':' %}
-          {% assign provider = token | split: ':' | first | downcase | strip %}
-          {% assign video_id = token | split: ':' | last | strip %}
-        {% else %}
-          {% assign provider = 'youtube' %}
-          {% assign video_id = token %}
-        {% endif %}
-
-        <div class="movie-card" data-provider="{{ provider }}" data-video-id="{{ video_id }}">
-          <div class="card_img">
-            {% if provider == 'youtube' %}
-              <img
-                class="saitei_bt"
-                src="{{ 'saisei_bt.png' | asset_url }}"
-              >
-              <img
-                class="saitei_bt_thumbnail"
-                src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg"
-                onerror="this.onerror=null;this.src='https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg';"
-                alt="YouTube thumbnail"
-              >
-            {% else %}
-              <div
-                class="vimeo-thumb-placeholder"
-                style="width:100%;aspect-ratio:16/9;background:#000;display:flex;align-items:center;justify-content:center;color:#fff;"
-              >
-                Loading…
-              </div>
-            {% endif %}
-          </div>
-          <p class="movie-title">Loading…</p>
-        </div>
-      {% endfor %}
+    <div id="movies-loader" style="text-align: center; padding: 2rem;">
+      <p>動画を読み込んでいます...</p>
     </div>
 
-    <!-- ---------- その他の動画 (3 列グリッド) ---------- -->
-    <div class="movies-list">
-      {% for item in others %}
-        {% assign token = item | strip %}
-        {% if token == '' %}{% continue %}{% endif %}
+    <div class="movies-featured"></div>
 
-        {% if token contains ':' %}
-          {% assign provider = token | split: ':' | first | downcase | strip %}
-          {% assign video_id = token | split: ':' | last | strip %}
-        {% else %}
-          {% assign provider = 'youtube' %}
-          {% assign video_id = token %}
-        {% endif %}
-
-        <div class="movie-card" data-provider="{{ provider }}" data-video-id="{{ video_id }}">
-          <div class="card_img">
-            {% if provider == 'youtube' %}
-              <img
-                class="saitei_bt"
-                src="{{ 'saisei_bt.png' | asset_url }}"
-              >
-              <img
-                class="saitei_bt_thumbnail"
-                src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg"
-                onerror="this.onerror=null;this.src='https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg';"
-                alt="YouTube thumbnail"
-              >
-            {% else %}
-              <div
-                class="vimeo-thumb-placeholder"
-                style="width:100%;aspect-ratio:16/9;background:#000;display:flex;align-items:center;justify-content:center;color:#fff;"
-              >
-                Loading…
-              </div>
-            {% endif %}
-          </div>
-          <p class="movie-title">Loading…</p>
-        </div>
-      {% endfor %}
-    </div>
+    <div class="movies-list"></div>
   </section>
 
-  <!-- ---------- MODAL ---------- -->
   <div class="movies-modal" id="movies-modal" hidden>
     <div class="movies-modal__overlay"></div>
     <div class="movies-modal__content">
-      <button class="movies-modal__close" aria-label="Close">&times;</button>
+      <button class="movies-modal__close" aria-label="Close">×</button>
       <div class="movies-modal__inner"></div>
     </div>
   </div>
 
-  <!-- ---------- SCRIPT ---------- -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      /* --- 動画タイトル & Vimeo サムネ取得 --- */
-      document.querySelectorAll('.movie-card').forEach((card) => {
-        const provider = card.dataset.provider;
-        const id = card.dataset.videoId;
-        const titleEl = card.querySelector('.movie-title');
+    document.addEventListener('DOMContentLoaded', async () => {
+      const dataSourceEl = document.getElementById('video-data-source');
+      // Liquidから渡された全ての動画情報を取得
+      const allVideoInputs = JSON.parse(dataSourceEl.textContent);
 
-        if (provider === 'youtube') {
-          fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
-            .then((r) => r.json())
-            .then((d) => {
-              if (d && d.title) titleEl.textContent = d.title;
-            })
-            .catch(() => {
-              titleEl.textContent = 'Video';
-            });
-        } else {
-          /* Vimeo: サムネ & タイトル一緒に取れる */
-          fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}`)
-            .then((r) => r.json())
-            .then((d) => {
-              if (d && d.title) titleEl.textContent = d.title;
-              const img = document.createElement('img');
-              img.src = d.thumbnail_large;
-              img.loading = 'lazy';
-              img.alt = 'Vimeo thumbnail';
-              const ph = card.querySelector('.vimeo-thumb-placeholder');
-              ph.replaceWith(img);
-            })
-            .catch(() => {
-              titleEl.textContent = 'Video';
-            });
-        }
-      });
+      const featuredContainer = document.querySelector('.movies-featured');
+      const listContainer = document.querySelector('.movies-list');
+      const loader = document.getElementById('movies-loader');
 
-      /* --- モーダル再生 --- */
+      /**
+       * 動画が利用可能かチェックし、情報を取得する
+       * @param {object} video - { provider: string, id: string }
+       * @returns {Promise<object>} - 利用可能な動画情報
+       */
+      const checkVideo = (video) => {
+        return new Promise(async (resolve, reject) => {
+          const { provider, id } = video;
+          let url;
+
+          if (provider === 'youtube') {
+            // 公式のoEmbedエンドポイントで動画の存在を確認（非公開/削除済みはエラーになる）
+            url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`;
+          } else if (provider === 'vimeo') {
+            url = `https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}`;
+          } else {
+            return reject(new Error('Unknown provider'));
+          }
+
+          try {
+            const response = await fetch(url, { mode: 'cors' });
+            if (!response.ok) {
+              // 404 Not Found, 403 Forbidden などでエラーを発生させる
+              throw new Error(`Video not available (status: ${response.status})`);
+            }
+            const data = await response.json();
+            // 成功した場合、整形した動画データを返す
+            resolve({
+              provider,
+              id,
+              title: data.title,
+              // YouTubeのoEmbedのサムネイルは低画質なので、高画質なURLを自前で生成
+              thumbnail_url:
+                provider === 'youtube' ? `https://i.ytimg.com/vi/${id}/maxresdefault.jpg` : data.thumbnail_url,
+            });
+          } catch (error) {
+            console.warn(`[Video Check Failed] Provider: ${provider}, ID: ${id}. ${error.message}`);
+            reject(error);
+          }
+        });
+      };
+
+      // 全ての動画を並行してチェック
+      const checkResults = await Promise.allSettled(allVideoInputs.map(checkVideo));
+
+      // チェックに成功した（＝利用可能な）動画のみを抽出
+      const availableVideos = checkResults
+        .filter((result) => result.status === 'fulfilled')
+        .map((result) => result.value);
+
+      // ローダーを非表示にする
+      if (loader) loader.style.display = 'none';
+
+      // 利用可能な動画がない場合はメッセージを表示
+      if (availableVideos.length === 0) {
+        const h2 = document.querySelector('h2');
+        if (h2) h2.insertAdjacentHTML('afterend', '<p>現在、視聴可能な動画はありません。</p>');
+        return;
+      }
+
+      // **利用可能な動画リスト**を元に、新着とその他に分割
+      const featuredVideos = availableVideos.slice(0, 2);
+      const otherVideos = availableVideos.slice(2);
+
+      /**
+       * 動画カードのHTMLを生成する
+       * @param {object} video - 整形済みの動画情報
+       * @returns {string} - HTML文字列
+       */
+      const createCardHTML = (video) => {
+        const { provider, id, title, thumbnail_url } = video;
+
+        // NOTE: asset_url は Liquid のため、事前にJavaScript変数に格納するか、CSSで背景画像として指定するのが望ましいです。
+        // ここではテンプレートリテラル内で直接使えないため、空のsrcをセットし、必要に応じて調整してください。
+        const playButtonUrl = "{{ 'saisei_bt.png' | asset_url }}";
+
+        const youtubeThumbnailHTML = `
+          <img class="saitei_bt" src="${playButtonUrl}">
+          <img class="saitei_bt_thumbnail"
+               src="${thumbnail_url}"
+               onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${id}/hqdefault.jpg';"
+               alt="${title}のサムネイル" loading="lazy">
+        `;
+        const vimeoThumbnailHTML = `<img src="${thumbnail_url}" alt="${title}のサムネイル" loading="lazy">`;
+
+        return `
+          <div class="movie-card" data-provider="${provider}" data-video-id="${id}">
+            <div class="card_img">
+              ${provider === 'youtube' ? youtubeThumbnailHTML : vimeoThumbnailHTML}
+            </div>
+            <p class="movie-title">${title || '動画タイトル'}</p>
+          </div>
+        `;
+      };
+
+      // HTMLを生成してコンテナに挿入
+      featuredContainer.innerHTML = featuredVideos.map(createCardHTML).join('');
+      listContainer.innerHTML = otherVideos.map(createCardHTML).join('');
+
+      /* --- ▼▼▼ MODAL再生処理（変更なし、ただし動的に生成された要素にイベントを付与） ▼▼▼ --- */
       const modal = document.getElementById('movies-modal');
       const inner = modal.querySelector('.movies-modal__inner');
 
+      // 動的に生成された .movie-card の全てにクリックイベントを設定
       document.querySelectorAll('.movie-card').forEach((card) => {
         card.addEventListener('click', () => {
           const provider = card.dataset.provider;
           const id = card.dataset.videoId;
+          // YouTubeの埋め込みURLを公式のものに修正
           const src =
             provider === 'youtube'
               ? `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&rel=0`
               : `https://player.vimeo.com/video/${id}?autoplay=1&loop=1`;
 
-          inner.innerHTML = `<iframe src="${src}" frameborder="0" allow="autoplay;fullscreen" allowfullscreen></iframe>`;
+          inner.innerHTML = `<iframe src="${src}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
           modal.hidden = false;
           document.body.classList.add('movies-modal-open');
         });
       });
 
-      /* --- モーダル閉じる --- */
+      // モーダルを閉じる処理
       const close = () => {
         modal.hidden = true;
-        inner.innerHTML = '';
+        inner.innerHTML = ''; // iframeを削除して再生を停止
         document.body.classList.remove('movies-modal-open');
       };
       modal.querySelector('.movies-modal__close').addEventListener('click', close);
-
-      {% comment %} inner.addEventListener('click', (e) => {
-        if (e.target === inner) close();
-      }); {% endcomment %}
-
       modal.addEventListener('click', (e) => {
+        // コンテンツの外側をクリックした場合も閉じる
         if (!e.target.closest('.movies-modal__content')) close();
       });
     });
