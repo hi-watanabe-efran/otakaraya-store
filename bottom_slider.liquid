@@ -1,0 +1,112 @@
+<div class="marquee">
+  <div class="marquee__inner">
+    {% for block in section.blocks %}
+      <div class="marquee__item">
+        {% if block.settings.link != blank %}
+          <a href="{{ block.settings.link }}">
+            <img
+              src="{{ block.settings.image | img_url: 'master' }}"
+              alt="{{ block.settings.alt | escape }}"
+            >
+          </a>
+        {% else %}
+          <img
+            src="{{ block.settings.image | img_url: 'master' }}"
+            alt="{{ block.settings.alt | escape }}"
+          >
+        {% endif %}
+      </div>
+    {% endfor %}
+    <!-- ループを滑らかにするため複製 -->
+    {% for block in section.blocks %}
+      <div class="marquee__item">
+        {% if block.settings.link != blank %}
+          <a href="{{ block.settings.link }}">
+            <img
+              src="{{ block.settings.image | img_url: 'master' }}"
+              alt="{{ block.settings.alt | escape }}"
+            >
+          </a>
+        {% else %}
+          <img
+            src="{{ block.settings.image | img_url: 'master' }}"
+            alt="{{ block.settings.alt | escape }}"
+          >
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .marquee {
+    overflow: hidden;
+    width: 100%;
+    background: #fff;
+  }
+  .marquee__inner {
+    display: flex;
+    width: max-content;
+    animation: marquee 60s linear infinite;
+  }
+  .marquee__item {
+    flex: 0 0 auto;
+    margin: 0 12px;
+  }
+  .marquee__item img {
+    max-height: 15vw;
+    width: auto;
+    display: block;
+  }
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (max-width: 749px) {
+    .marquee__item img {
+      max-height: 50vw;
+      width: auto;
+      display: block;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "ボトムスライダー",
+  "max_blocks": 10,
+  "blocks": [
+    {
+      "type": "category",
+      "name": "スライダー画像",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "画像"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "リンク"
+        },
+        {
+          "type": "text",
+          "id": "alt",
+          "label": "ALTテキスト"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "ボトムスライダー"
+    }
+  ]
+}
+{% endschema %}

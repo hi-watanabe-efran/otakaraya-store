@@ -1,0 +1,241 @@
+<style>
+  #new-arrival-carousel-{{ section.id }} {
+    max-width: 1400px;
+    margin: 4em auto;
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 0 60px;
+  }
+  #new-arrival-carousel-{{ section.id }} .na-heading {
+    text-align: center;
+    font-size: 3rem;
+    letter-spacing: 4px;
+    font-family: 'Noto Sans JP';
+    margin-bottom: 2rem;
+  }
+  #new-arrival-carousel-{{ section.id }} .splide__slide {
+    position: relative;
+  }
+
+  #new-arrival-carousel-{{ section.id }} .splide__slide a {
+    text-decoration: none;
+  }
+
+  #new-arrival-carousel-{{ section.id }} .na-fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    background: #fff;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    transition: background 0.2s;
+    color: #e00;
+    font-family: sans-serif;
+    background-color: transparent;
+  }
+  #new-arrival-carousel-{{ section.id }} .na-fav-btn:hover {
+    background: #ffeaea;
+    color: #c00;
+  }
+  #new-arrival-carousel-{{ section.id }} .na-product-img {
+    width: 100%;
+    margin-bottom: 10px;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    background: #fafafa;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 4px 20px 0 rgba(0,0,0,0.04);
+  }
+  #new-arrival-carousel-{{ section.id }} .na-title {
+    margin: 8px 0 0;
+    color: #000;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  #new-arrival-carousel-{{ section.id }} .na-price {
+    text-align: left;
+    margin-top: 3px;
+    font-weight: bold;
+    color: #000;
+  }
+  #new-arrival-carousel-{{ section.id }} .splide__arrow {
+    -webkit-tap-highlight-color: transparent; /* ← iOSの青いハイライトを無効化 */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+
+    background: transparent;
+    width: 44px;
+    height: 44px;
+    top: 50%;
+    transform: translateY(-100%);
+    border: none;
+    z-index: 10;
+    box-shadow: none;
+    cursor: pointer;
+  }
+  #new-arrival-carousel-{{ section.id }} .splide__arrow svg {
+    display: none !important;
+  }
+  #new-arrival-carousel-{{ section.id }} .splide__arrow--prev::before,
+  #new-arrival-carousel-{{ section.id }} .splide__arrow--next::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    margin: 0 auto;
+    border-style: solid;
+  }
+  #new-arrival-carousel-{{ section.id }} .splide__arrow--prev::before {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    border-top: 2px #000 !important;
+    border-right: 2px #000 !important;
+    top: 50%;
+    left: 50%;
+    transform: translate(-70%, -50%) rotate(45deg);
+  }
+  #new-arrival-carousel-{{ section.id }} .splide__arrow--next::before {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    border-bottom: 2px #000 !important;
+    border-left: 2px #000 !important;
+    top: 50%;
+    left: 70%;
+    transform: translate(-70%, -50%) rotate(45deg);
+  }
+  #new-arrival-carousel-{{ section.id }} .splide__pagination {
+    display: flex !important;
+    justify-content: center;
+    gap: 10px;
+    margin: 24px 0 0 0;
+    position: static;
+  }
+  #new-arrival-carousel-{{ section.id }} .splide__pagination__page {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ccc;
+    border: none;
+    opacity: 1;
+    transition: background 0.2s;
+    margin: 0;
+    box-shadow: none;
+  }
+  #new-arrival-carousel-{{ section.id }} .splide__pagination__page.is-active {
+    background: #000;
+  }
+
+
+  #new-arrival-carousel-{{ section.id }} .na-img-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    display: block;
+  }
+
+  #new-arrival-carousel-{{ section.id }} .na-img-main,
+  #new-arrival-carousel-{{ section.id }} .na-img-second {
+    width: 100%;
+    object-fit: cover;
+    background: #fafafa;
+    transition: opacity 0.4s;
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+  }
+  #new-arrival-carousel-{{ section.id }} .na-img-main {
+    z-index: 1;
+    opacity: 1;
+  }
+  #new-arrival-carousel-{{ section.id }} .na-img-second {
+    z-index: 2;
+    opacity: 0;
+  }
+  #new-arrival-carousel-{{ section.id }} .na-img-wrap:hover .na-img-second {
+    opacity: 1;
+  }
+  #new-arrival-carousel-{{ section.id }} .na-img-wrap:hover .na-img-main {
+    opacity: 0;
+  }
+
+     /* SP版 */
+     @media (max-width: 749px) {
+
+  #new-arrival-carousel-{{ section.id }} {
+    padding: 0 24px;
+  }
+
+      #new-arrival-carousel-{{ section.id }} .splide__arrow {
+         transform: translateY(-50%);
+       }
+     }
+</style>
+
+<div id="new-arrival-carousel-{{ section.id }}" class="splide">
+  <h2 class="na-heading">NEW ARRIVAL</h2>
+  <div class="splide__track">
+    <ul class="splide__list">
+      {% assign latest_products = collections['new-arrival'].products | sort: 'created_at' | reverse | slice: 0, 20 %}
+      {% for product in latest_products %}
+        <li class="splide__slide">
+          {% render 'card-product',
+            card_product: product,
+            media_aspect_ratio: 'square',
+            show_secondary_image: true,
+            section_id: section.id
+          %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var carouselId = '#new-arrival-carousel-{{ section.id }}';
+    if (typeof Splide !== 'undefined') {
+      new Splide(carouselId, {
+        type: 'loop',
+        perPage: 5,
+        perMove: 1,
+        autoplay: false,
+        interval: 2000,
+        speed: 1000,
+        arrows: true,
+        pagination: false,
+        pauseOnHover: false,
+        pauseOnFocus: false,
+        gap: '20px',
+        breakpoints: {
+          990: { perPage: 3, gap: '12px' },
+          750: { perPage: 2, gap: '8px' },
+        },
+      }).mount();
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "NEW ARRIVAL カルーセル",
+  "settings": [],
+  "blocks": [],
+  "presets": [
+    {
+      "name": "NEW ARRIVAL カルーセル"
+    }
+  ]
+}
+{% endschema %}

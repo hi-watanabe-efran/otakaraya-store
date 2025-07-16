@@ -1,0 +1,48 @@
+{% schema %}
+{
+  "name": "カートボタン（即購入付き）",
+  "settings": [],
+  "presets": [
+    {
+      "name": "カートボタン（即購入付き）"
+    }
+  ]
+}
+{% endschema %}
+
+<div id="custom-cart-buttons" style="display: flex; gap: 12px;">
+  <form method="post" action="/cart/add" id="add-to-cart-form" style="flex:1;">
+    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+    <button type="submit" class="btn btn--add-to-cart" style="width: 100%;">カートに追加</button>
+  </form>
+  <button
+    type="button"
+    id="buy-now-button"
+    class="btn btn--buy-now"
+    style="flex:1; background: #f05a24; color: #fff; border:none; padding:10px 0; border-radius: 4px; font-weight: bold;"
+  >
+    購入手続き
+  </button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var buyNowButton = document.getElementById('buy-now-button');
+    if (!buyNowButton) return;
+    buyNowButton.addEventListener('click', function () {
+      var variantId = '{{ product.selected_or_first_available_variant.id }}';
+      fetch('/cart/clear.js', { method: 'POST', credentials: 'same-origin' }) // 必ずカートをクリア
+        .then(function () {
+          return fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: variantId, quantity: 1 }),
+            credentials: 'same-origin',
+          });
+        })
+        .then(function () {
+          window.location.href = '/checkout';
+        });
+    });
+  });
+</script>

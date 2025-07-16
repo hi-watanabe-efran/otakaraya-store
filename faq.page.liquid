@@ -1,0 +1,840 @@
+<style>
+  .faq-section {
+    background: #f1f1ee;
+    padding: 60px 0;
+  }
+  .faq-section h1 {
+    text-align: center;
+    font-family: 'Noto Sans JP';
+    letter-spacing: 2px;
+    font-size: 40px;
+  }
+
+  .faq-section h1 span.sub_title {
+    font-size: 0.6em;
+  }
+  .faq-block {
+    padding: 1rem 0;
+  }
+  .faq-section h2 {
+    font-family: 'Noto Sans JP';
+  }
+  .faq-accordion {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 5%;
+  }
+  .faq-item {
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 18px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  }
+  .faq-q {
+    display: flex;
+    align-items: center;
+    background: #000;
+    color: #fff;
+    padding: 0 6px;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    font-family: 'Noto Sans JP';
+    gap: 12px;
+  }
+
+  .faq-q .faq-label-q {
+    font-size: 3rem;
+    font-weight: bold;
+    width: 48px;
+    height: 36px;
+    min-width: 48px;
+    line-height: 1;
+  }
+
+  .faq-q h3.faq-q-text {
+    padding: 0 30px 0 0px;
+    flex-grow: 1;
+    text-align: left;
+    color: white;
+    font-size: 16px;
+    font-family: 'Noto Sans JP';
+  }
+  .faq-q .faq-icon {
+    font-size: 1.6rem;
+    padding: 0 18px 0 10px;
+    transition: transform 0.2s;
+    user-select: none;
+    position: absolute;
+    right: 0;
+  }
+  .faq-q[aria-expanded='true'] .faq-icon {
+    transform: rotate(0deg);
+  }
+  /* 開閉アニメーションを滑らかに */
+  .faq-a {
+    background: #fff;
+    overflow: hidden;
+    max-height: 0; /* ← height ではなく max-height を 0 スタート */
+    opacity: 0;
+    transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease,
+      padding 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0;
+    padding: 0 6px; /* 閉じた状態はパディング 0 */
+    border-radius: 0 0 4px 4px;
+    border-top: 1px solid #ededed;
+  }
+  .faq-a.open {
+    opacity: 1;
+  }
+  .faq-a-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 26px 0; /* 開いたときのパディング */
+  }
+
+  .faq-a .faq-label-a {
+    font-size: 3rem;
+    font-weight: bold;
+    width: 48px;
+    display: block;
+    text-align: center;
+    line-height: 1;
+    font-family: 'Noto Sans JP';
+  }
+  .faq-a .faq-a-content {
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+  .faq-a .faq-a-content a {
+    color: black;
+  }
+  .faq-a h3.faq-block-title {
+    font-weight: bold;
+    margin: 0;
+    font-size: 16px;
+    font-family: 'Noto Sans JP';
+  }
+  .faq-a ol {
+    counter-reset: marunum; /* 独自カウンターをリセット */
+    list-style: none;
+    padding-left: 0;
+    margin: 10px 0;
+  }
+  .faq-a ol li {
+    position: relative;
+    padding-left: 2em;
+    counter-increment: marunum;
+  }
+  .faq-a ol li::before {
+    content: '①';
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-weight: bold;
+    color: #222;
+    font-size: 1.12em;
+    line-height: 1.5;
+  }
+  .faq-a ol li:nth-child(2)::before {
+    content: '②';
+  }
+  .faq-a ol li:nth-child(3)::before {
+    content: '③';
+  }
+  .faq-a ol li:nth-child(4)::before {
+    content: '④';
+  }
+  .faq-a ol li:nth-child(5)::before {
+    content: '⑤';
+  }
+  .faq-a ol li:nth-child(6)::before {
+    content: '⑥';
+  }
+  .faq-a ol li:nth-child(7)::before {
+    content: '⑦';
+  }
+  .faq-a ol li:nth-child(8)::before {
+    content: '⑧';
+  }
+  .faq-a ol li:nth-child(9)::before {
+    content: '⑨';
+  }
+  .faq-a ol li:nth-child(10)::before {
+    content: '⑩';
+  }
+
+  @media (max-width: 750px) {
+    .faq-q .faq-q-text {
+      padding: 0 8px;
+    }
+    .faq-a,
+    .faq-a.open {
+      padding-left: 8px;
+      padding-right: 8px;
+      gap: 8px;
+    }
+    .faq-a .faq-label-a {
+      margin-bottom: 4px;
+      margin-right: 0;
+    }
+
+    .faq-q .faq-label-q {
+      font-size: 2.4rem;
+    }
+
+    .faq-a .faq-label-a {
+      font-size: 2.4rem;
+    }
+  }
+</style>
+
+<div class="faq-section">
+  <h1>
+    FAQ<br>
+    <span class="sub_title">よくある質問</span>
+  </h1>
+  <div class="faq-accordion">
+    {% comment %} アカウントについて {% endcomment %}
+    <section class="faq-block">
+      <h2>アカウントについて</h2>
+      <!-- Q1 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">会員登録の手順を教えてください</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              <h3 class="faq-block-title">■会員登録</h3>
+              <ol>
+                <li>トップページの右上にある人型のアイコンをクリックします。</li>
+                <li>メールアドレスの入力画面に移ります。</li>
+                <li>
+                  アカウントにご登録いただくメールアドレスを入力し実行ボタンをクリックします。<br>
+                  ご登録いただいたメールアドレスにログイン用のコードが届きます。
+                </li>
+                <li>コードの入力画面に送られてきたコードを入力をすると、ご登録が完了となります。</li>
+              </ol>
+              <h3 class="faq-block-title">■ご住所の登録</h3>
+              <ol>
+                <li>画面右上部にあるメニューから、プロフィールを選択します。</li>
+                <li>
+                  住所の登録画面に移りますので、必要情報をご入力ください。<br>
+                  尚、購入画面からも住所の登録は可能です。
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Q2 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">登録した会員情報を変更するにはどうすればよいですか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              画面上部のメニューから、プロフィールを選択します。<br>
+              表示された画面にて、お名前やご住所などの変更が可能です。<br>
+              尚、ご登録のメールアドレスのご変更はでき兼ねますので予めご了承ください。
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Q3 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">ログインする方法を教えてください</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              <ol>
+                <li>トップページの右上にある人型のアイコンをクリックします。</li>
+                <li>メールアドレスの入力画面に移ります。</li>
+                <li>
+                  アカウントにご登録頂いたメールアドレスを入力し実行ボタンをクリックします。ご登録いただいたメールアドレスにログイン用のコードが届きます。
+                </li>
+                <li>コードの入力画面に送られてきたコードを入力をすると、ログインが完了となります。</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Q4 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">会員登録をしなくても利用できますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              会員登録なしでも商品をご購入いただけます。ただしポイントの利用や購入履歴など、会員様限定のサービスはご利用いただけません。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% comment %} 購入について {% endcomment %}
+    <section class="faq-block">
+      <h2>購入について</h2>
+      <!-- Q1 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">商品はすべて中古品ですか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              当サイトで取り扱う商品は、すべて厳選された中古品です。各商品ページにて、状態ランクや詳細説明、画像をご確認いただけます。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">注文をキャンセルしたい</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              ご注文確定後、発送前であればキャンセルが可能です。発送後のキャンセルは、原則としてお受けできませんので、返品手続きでの対応となります。
+              <a href="/pages/contact/" style="text-decoration: underline;">お問い合わせフォーム</a
+              >にてお問い合わせください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">中古品は保証がありますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              原則として、中古品には保証がございません。<br>
+              ただし、商品に不備があった場合は、商品到着日を含め3日以内にご連絡いただければ、返品にて対応させていただきます。<br>
+              詳細につきましては「<a href="/policies/refund-policy/" style="text-decoration: underline;">返金ポリシー</a
+              >」ページをご確認ください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">中古品の状態やニオイについて気になります</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              各商品ページには、商品の状態ランクや詳細な説明、写真を掲載しております。
+              ご購入前にそちらをご確認ください。 また、ご不明な点がございましたら、<a
+                href="/pages/contact/"
+                style="text-decoration: underline;"
+                >お気軽にお問い合わせください。</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">商品に付属品はありますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              商品ページに記載されている内容がお届けする対象の全てとなります。記載のないものは付属いたしませんので、あらかじめご了承ください。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% comment %} 支払いについて {% endcomment %}
+    <section class="faq-block">
+      <h2>支払いについて</h2>
+      <!-- Q1 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">支払い方法にはどんな種類がありますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              銀行振込、クレジットカード、Apple Pay、Google Pay、paypal、ショッピングローンがご利用いただけます。<br>
+              詳細は「<a href="/pages/payment-policy/" style="text-decoration: underline;">お支払いについて</a
+              >」のページをご確認ください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">領収書を発行して欲しい</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              領収書をご希望の場合は、お問い合わせフォームの「お問い合わせ内容」の欄に「領収書希望」とご入力いただき、併せて該当商品の注文番号（例：#1234）もご連絡ください。<br>
+              ※領収書は、ご注文者様のお名前での発行となります。あらかじめご了承ください。<br>
+              <br>
+              また、適格請求書（インボイス）をご希望の場合は、商品発送時に同梱される納品書がインボイス制度に対応しておりますので、そちらをご利用ください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">ショッピングローンとはどんな支払い方法ですか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              ショッピングローンについて WEB上で簡単に分割払いをお申し込みいただける便利な決済方法です。<br>
+              通常、1営業日以内にスピード審査が行われ、書類のご準備は不要です。<br>
+              通信は暗号化されたSSL方式を採用しており、安心してご利用いただけます。<br>
+              <br>
+              【信販会社】オリエントコーポレーション 【お支払い方法】 ・分割払い（最大60回まで対応） ・ボーナス一括払い<br>
+              ・ボーナス2回払い<br>
+              <br>
+              ※ご注文後、別途お手続きが必要です。<br>
+              お手続きに進んでいただくためのご案内メールをお送りしますので、必要事項をご入力のうえ、信販会社からの確認連絡（メール）にご対応ください。これらの手順にてお手続きが完了となります。<br>
+              <br>
+              なお、商品はお手続き完了後の発送となりますので、あらかじめご了承ください。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% comment %} ポイントについて {% endcomment %}
+    <section class="faq-block">
+      <h2>ポイントについて</h2>
+      <!-- Q1 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">ポイントは付きますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              当オンラインストアでは、アカウントをお持ちのお客様限定で、ポイントサービスをご利用いただけます。<br>
+              アカウントにログインした状態でご購入いただくと、商品購入価格（税抜）に対して1％のポイントが付与されます。<br>
+              なお、ポイントの付与率はキャンペーンなどにより変更となる場合がございます。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">ポイントが付くタイミングはいつですか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">商品を出荷するタイミングでポイントが付与されます。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">ポイントの利用方法を教えてください</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              貯まったポイントは、1ポイント＝1円として、当オンラインストア内でのお買い物にご利用いただけます。<br>
+              <br>
+              ポイントをご利用の際は、画面右下に表示される『現在の所持ポイント』または『カート』画面内の『使用するポイント』欄へ、ご希望のポイント数をご入力の上、『購入手続き』画面へお進みください。<br>
+              <br>
+              ※ポイントの有効期限は、付与日から1年間です。<br>
+              尚、キャンペーンなどで付与されたポイントは、有効期限が異なる場合がございます。あらかじめご了承ください。<br>
+              <br>
+              ※ポイントとクーポンの併用はできません。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">ポイントの有効期限はありますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              ポイントの有効期限は付与日から１年間です。<br>
+              尚、キャンペーンなどで付与されたポイントは、有効期限が異なる場合がございます。あらかじめご了承ください。
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Q5 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">ポイントとクーポンの併用はできますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">ポイントとクーポンの併用はできません。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% comment %} クーポンについて {% endcomment %}
+    <section class="faq-block">
+      <h2>クーポンについて</h2>
+      <!-- Q1 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">クーポンの利用方法を教えてください</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              カート画面またはご購入手続き画面で、クーポンコード入力欄にクーポンコードをご入力ください。<br>
+              またカート画面にて『使用できるクーポンを確認する』を押して頂くとお手持ちのクーポンをご確認いただけます。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">クーポンに有効期限はありますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              はい、クーポンにより有効期限は異なります。クーポンごとにご案内しております有効期限をご確認ください。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% comment %} 配送について {% endcomment %}
+    <section class="faq-block">
+      <h2>配送について</h2>
+      <!-- Q1 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">注文した商品はどのくらいで届きますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              お届け日時の指定がない場合、ご入金確認後5営業日以内に発送いたします。発送が完了しましたら、メールにて追跡番号をご連絡いたします。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">ギフト包装は可能ですか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">ギフト包装には対応をしておりません。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">送料はいくらですか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              送料は無料でお届けいたします。 ただし、ご購入商品の重量により追加送料が必要となる場合がございます。<br>
+              重量加算の対象となる商品には、商品ページ内に『この商品は重量加算商品のため、送料が別途かかります。』と記載しておりますので、あらかじめご確認ください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">別々に注文した商品をまとめて送ってもらえますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              当店では、別々にご注文いただいた商品を可能な限りまとめて発送（同梱発送）させていただいております。<br>
+              ただし、送料が発生する商品につきましては、同梱発送ができないため、個別発送となります。<br>
+              あらかじめご了承ください。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% comment %} 返品・返金について {% endcomment %}
+    <section class="faq-block">
+      <h2>返品・返金について</h2>
+      <!-- Q1 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">万が一偽物だった場合はどのように対応してもらえますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              万が一、当店でご購入いただいた商品が偽造品であると判明した場合は、送料も含めた全額の返金にて対応させていただきます。<br>
+              詳しくは、
+              <a href="/pages/gizohin-taisaku" style="text-decoration: underline;"
+                >偽造品（コピー品）対策についてのページ</a
+              >をご確認ください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">届いた商品がイメージと違ったのですが、返品はできますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              商品到着後3日以内にご連絡をいただければ、ご返品は可能です。<br>
+              但し、返送料はお客様のご負担となりますので、ご了承くださいませ。<br>
+              詳しくは、<a href="/policies/refund-policy/" style="text-decoration: underline;">返金ポリシー</a
+              >をご確認ください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">交換はできますか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              当店で取り扱っている商品はすべて中古品の一点ものとなるため、交換対応は承っておりません。あらかじめご了承ください。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% comment %} その他 {% endcomment %}
+    <section class="faq-block">
+      <h2>その他</h2>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">問い合わせをしたいのですが、どのように連絡すればよいですか</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              <a href="/pages/contact/" style="text-decoration: underline;">お問い合わせフォーム</a
+              >、またはお電話にてお問合せをください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          <span class="faq-label-q">Q</span>
+          <h3 class="faq-q-text">オンラインストアで販売中の商品を実際に見てみたい</h3>
+          <span class="faq-icon">＋</span>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-body">
+            <span class="faq-label-a">A</span>
+            <div class="faq-a-content">
+              誠に恐れ入りますが、当店では商品展示を行っておらず、直接ご来店いただいても商品をご覧いただくことはできません。<br>
+              なお、返送料をご負担いただく形にはなりますが、商品到着日を含め3日以内であればご返品も承っております。<br>
+              そのため、一度ご購入いただき、実際に商品をお手に取ってご確認いただくことが可能です。<br>
+              ぜひご検討くださいませ。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.faq-q').forEach((btn) => {
+    const content = btn.nextElementSibling;
+
+    /* 進行中の requestAnimationFrame と transitionend を管理 */
+    let rafId = null;
+    let tidyFn = null;
+
+    const stopAnim = () => {
+      /* ① まだ実行されていない rAF があれば無効化 */
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      /* ② transitionend コールバックも外す */
+      if (tidyFn) {
+        content.removeEventListener('transitionend', tidyFn);
+        tidyFn = null;
+      }
+    };
+
+    btn.addEventListener('click', () => {
+      stopAnim(); // ← ここがポイント
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+
+      if (expanded) {
+        /* ---------- 閉じる ---------- */
+        btn.setAttribute('aria-expanded', 'false');
+        btn.querySelector('.faq-icon').textContent = '＋';
+
+        /* 現在の高さを固定して 0 へ縮める */
+        content.style.maxHeight = content.scrollHeight + 'px';
+        rafId = requestAnimationFrame(() => {
+          content.style.maxHeight = '0';
+          content.classList.remove('open');
+          rafId = null;
+        });
+      } else {
+        /* ---------- 開く ---------- */
+        btn.setAttribute('aria-expanded', 'true');
+        btn.querySelector('.faq-icon').textContent = '－';
+
+        /* 閉じた状態から開始（高さ 0・padding 0）*/
+        content.classList.add('open'); // padding 復活
+        content.style.maxHeight = '0';
+
+        /* 次フレームで実寸へ */
+        rafId = requestAnimationFrame(() => {
+          content.style.maxHeight = content.scrollHeight + 'px';
+          rafId = null;
+        });
+
+        /* 終了後に max-height:none へリセット */
+        tidyFn = (e) => {
+          if (e.propertyName === 'max-height') {
+            content.style.maxHeight = 'none';
+            content.removeEventListener('transitionend', tidyFn);
+            tidyFn = null;
+          }
+        };
+        content.addEventListener('transitionend', tidyFn);
+      }
+    });
+  });
+</script>

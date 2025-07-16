@@ -1,0 +1,449 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
+  #site_footer {
+    width: 100%;
+    top: 0;
+    z-index: 100;
+    background: transparent;
+    transform: translateY(0); /* 初期状態は表示 */
+    transition: transform 0.3s ease-in-out; /* スムーズなアニメーション */
+    margin-bottom: 10em;
+    position: realtive;
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 0 4em;
+    max-width: var(--page-width);
+    margin: auto;
+
+    .footer_top_block {
+      background: #fff;
+      height: 48px;
+      position: relative;
+      margin-top: 2em;
+    }
+
+    /* ---- メインナビ ---- */
+    .nav-main {
+      display: flex;
+      gap: 3em;
+      align-items: center;
+      font-family: sans-serif;
+      margin: auto;
+      font-weight: 600;
+    }
+  }
+</style>
+
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .footer_top_bar {
+    padding: 2em 0;
+    justify-content: center;
+    width: 100%;
+    display: block !important;
+    background: #000;
+  }
+
+  #site_footer {
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+    li {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+      color: #000;
+    }
+
+    a:hover {
+      opacity: 0.6;
+    }
+
+    div:empty {
+      display: block;
+    }
+
+    .footer_link_block {
+      display: flex;
+    }
+
+    .footer_link_block ul {
+      margin-right: 8em;
+    }
+
+    .footer_link_block li {
+      line-height: 1;
+      margin-bottom: 1em;
+    }
+
+    .footer_link_block li a {
+      color: #000;
+    }
+
+    .footer_bottom_block {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer_payment_list {
+      display: flex;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .footer_payment_list li {
+      margin-right: 1em;
+    }
+
+    .additional_payment {
+      width: 38px;
+      height: 24px;
+      border: 1px solid #dddddd;
+      border-radius: 4px;
+    }
+
+    .footer_logo_copy_right {
+      font-weight: 600;
+      color: #000;
+    }
+  }
+</style>
+
+<style>
+  /* ---- レスポンシブ ---- */
+  @media (max-width: 749px) {
+    .footer_top_bar {
+      padding: 4vw;
+    }
+    #site_footer {
+      padding: 0 2em;
+
+      .nav-main {
+        align-items: center;
+        font-family: sans-serif;
+        margin: auto;
+        display: grid;
+        gap: 1em;
+      }
+
+      .nav-main a {
+        font-size: 2.6vw;
+      }
+
+      .footer_top_block {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .footer_link_block {
+        display: block;
+      }
+
+      .footer_link_block ul {
+        margin-right: 0;
+      }
+
+      .footer_link_block li a {
+        font-size: 2.6vw;
+      }
+
+      .footer_bottom_block {
+        display: block;
+      }
+
+      .footer_sp_link_block {
+        display: flex;
+        justify-content: space-around;
+        align-items: baseline;
+      }
+
+      .footer_payment_list {
+        margin-top: 2em;
+        margin-bottom: 2em;
+        justify-content: center;
+      }
+
+      .footer_logo_block img {
+        width: 36vw;
+      }
+
+      .footer_logo_copy_right {
+        font-size: 3vw;
+      }
+    }
+  }
+</style>
+
+<style>
+  /* topへ戻るボタン */
+  .footer_return_top {
+    position: fixed;
+    bottom: 5%;
+    right: 2%;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 10;
+  }
+
+  .footer_return_top.open {
+    opacity: 1;
+  }
+  .footer_return_top.open:hover {
+    opacity: 0.6;
+  }
+
+  #SectionHeading-template--19236774248665__collection-list {
+    display: block;
+    padding-top: 140px;
+    margin-top: -140px;
+  }
+</style>
+
+<div class="footer_top_bar"></div>
+
+<footer id="site_footer">
+  <div class="footer_sp_link_block">
+    <div class="footer_top_block">
+      <nav class="nav-main">
+        <a href="/" class="nav-link">HOME</a>
+        <a href="/collections/all" class="nav-link">商品一覧</a>
+        {% comment %} <a href="/pages/faq" class="nav-link">FAQ</a> {% endcomment %}
+      </nav>
+    </div>
+    <div class="footer_link_block">
+      <ul>
+        <li>
+          <a href="https://otakaraya-store.com/pages/contact">お問い合わせ</a>
+        </li>
+        <li>
+          <a href="https://otakaraya-store.com/pages/faq">よくある質問</a>
+        </li>
+        <li>
+          <a href="https://otakaraya-store.com/pages/payment-policy">支払いポリシー</a>
+        </li>
+        <li>
+          <a
+            href="https://otakaraya-store.com/policies/privacy-policy"
+            >プライバシーポリシー</a
+          >
+        </li>
+        <li>
+          <a href="https://otakaraya-store.com/policies/refund-policy">返金ポリシー</a>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <a
+            href="https://otakaraya-store.com/policies/terms-of-service"
+            >利用規約</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://otakaraya-store.com/policies/shipping-policy"
+            >配送ポリシー</a
+          >
+        </li>
+        <li>
+          <a href="https://otakaraya-store.com/pages/gizohin-taisaku">偽造品（コピー品）対策について</a>
+        </li>
+        <li>
+          <a href="https://otakaraya-store.com/policies/legal-notice"
+            >特定商取引法に基づく表記/<br>
+            古物営業法に基づく表記</a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer_bottom_block">
+    {%- if section.settings.payment_enable -%}
+      <div class="footer_payment">
+        <span class="visually-hidden">{{ 'sections.footer.payment' | t }}</span>
+        <ul class="footer_payment_list">
+          {%- for type in shop.enabled_payment_types -%}
+            <li class="">
+              {{ type | payment_type_svg_tag: class: 'icon
+                    icon--full-color' }}
+            </li>
+          {%- endfor -%}
+          <li class="">
+            <img
+              class="additional_payment"
+              src="{{ 'visa.svg' | asset_url }}"
+              alt="OTAKARAYA ONLINE STORE"
+            >
+          </li>
+          <li>
+            <img
+              class="additional_payment"
+              src="{{ 'master.svg' | asset_url }}"
+              alt="OTAKARAYA ONLINE STORE"
+            >
+          </li>
+          <li>
+            <img
+              class="additional_payment"
+              src="{{ 'jcb.svg' | asset_url }}"
+              alt="OTAKARAYA ONLINE STORE"
+            >
+          </li>
+          <li>
+            <img
+              class="additional_payment"
+              src="{{ 'diners.svg' | asset_url }}"
+              alt="OTAKARAYA ONLINE STORE"
+            >
+          </li>
+        </ul>
+      </div>
+    {%- endif -%}
+    <div class="footer_logo_block">
+      <a href="/">
+        <img
+          src="{{ 'PC_footer_logo.webp' | asset_url }}"
+          alt="OTAKARAYA ONLINE STORE"
+          width="400px"
+        >
+      </a>
+      <p class="footer_logo_copy_right">© 2025, OTAKARAYA ONLINESTORE</p>
+    </div>
+  </div>
+</footer>
+
+<a class="footer_return_top" href="#MainContent">
+  <img
+    src="{{ 'PC_footer_bt.webp' | asset_url }}"
+    alt="OTAKARAYA ONLINE STORE"
+  >
+</a>
+
+<script>
+  /* 少しスクロールでTOPに戻るボタン表示 */
+  function toggleBanner() {
+    const scroll = window.pageYOffset;
+    const returnTop = document.querySelector('.footer_return_top');
+    if (scroll > 100) {
+      returnTop.classList.add('open');
+    } else if (scroll <= 100) {
+      returnTop.classList.remove('open');
+    }
+  }
+
+  window.addEventListener('scroll', () => {
+    toggleBanner();
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    toggleBanner();
+  });
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.footer.name",
+  "blocks": [
+    { "type": "@app" },
+    {
+      "type": "link_list",
+      "name": "t:sections.footer.blocks.link_list.name",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "t:sections.footer.blocks.link_list.settings.heading.default",
+          "label": "t:sections.footer.blocks.link_list.settings.heading.label"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "default": "footer",
+          "label": "t:sections.footer.blocks.link_list.settings.menu.label",
+          "info": "t:sections.footer.blocks.link_list.settings.menu.info"
+        }
+      ]
+    },
+    {
+      "type": "brand_information",
+      "name": "t:sections.footer.blocks.brand_information.name",
+      "settings": [
+        { "type": "paragraph", "content": "t:sections.footer.blocks.brand_information.settings.paragraph.content" },
+        {
+          "type": "header",
+          "content": "t:sections.footer.blocks.brand_information.settings.header__1.content"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social",
+          "default": true,
+          "label": "t:sections.footer.blocks.brand_information.settings.show_social.label",
+          "info": "t:sections.footer.blocks.brand_information.settings.show_social.info"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.footer.blocks.text.name",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "t:sections.footer.blocks.text.settings.heading.default",
+          "label": "t:sections.footer.blocks.text.settings.heading.label"
+        },
+        {
+          "type": "richtext",
+          "id": "subtext",
+          "default": "t:sections.footer.blocks.text.settings.subtext.default",
+          "label": "t:sections.footer.blocks.text.settings.subtext.label"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        {
+          "type": "range",
+          "id": "image_width",
+          "min": 50,
+          "max": 550,
+          "step": 5,
+          "unit": "px",
+          "label": "Image width",
+          "default": 100
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Image alignment on large screen",
+          "options": [
+            { "value": "", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "center"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "payment_enable",
+      "default": true,
+      "label": "t:sections.footer.settings.payment_enable.label"
+    }
+  ],
+  "default": {
+    "blocks": [{ "type": "link_list" }, { "type": "text" }]
+  }
+}
+{% endschema %}

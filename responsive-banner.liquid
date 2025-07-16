@@ -1,0 +1,92 @@
+{% stylesheet %}
+  section.responsive-banner {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 1.5rem;
+  }
+  section.responsive-banner img {
+    max-width: 100%;
+  }
+
+  section.responsive-banner a img {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  section.responsive-banner a:hover img {
+    opacity: 0.6;
+  }
+{% endstylesheet %}
+
+<section class="responsive-banner">
+  {% for block in section.blocks %}
+    {% assign pc_img = block.settings.image_pc %}
+    {% assign sp_img = block.settings.image_sp %}
+    {% assign link = block.settings.link_url %}
+    {% assign alt = block.settings.alt_text %}
+
+    {% if pc_img != blank %}
+      <div class="is-pc">
+        {% if link != blank %}
+          <a href="{{ link }}">
+            <img src="{{ pc_img | img_url: '2048x' }}" alt="{{ alt | escape }}">
+          </a>
+        {% else %}
+          <img src="{{ pc_img | img_url: '2048x' }}" alt="{{ alt | escape }}">
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if sp_img != blank %}
+      <div class="is-sp">
+        {% if link != blank %}
+          <a href="{{ link }}">
+            <img src="{{ sp_img | img_url: '2048x' }}" alt="{{ alt | escape }}">
+          </a>
+        {% else %}
+          <img src="{{ sp_img | img_url: '2048x' }}" alt="{{ alt | escape }}">
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</section>
+
+{% schema %}
+{
+  "name": "レスポンシブ画像バナー",
+  "blocks": [
+    {
+      "type": "banner",
+      "name": "バナー",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image_pc",
+          "label": "PC用画像"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_sp",
+          "label": "SP用画像"
+        },
+        {
+          "type": "text",
+          "id": "link_url",
+          "label": "リンクURL（共通）"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "altテキスト（共通）"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "レスポンシブ画像バナー",
+      "category": "バナー"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,575 @@
+<style>
+  /* ---- ヘッダー全体 ---- */
+  #site-header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+    background: transparent;
+    transform: translateY(0); /* 初期状態は表示 */
+    transition: transform 0.3s ease-in-out; /* スムーズなアニメーション */
+
+    .header-top {
+      background: #000;
+      padding: 1.2rem 0;
+      text-align: center;
+      letter-spacing: 0.2em;
+      position: relative;
+    }
+    .header-logo {
+      font-family: sans-serif;
+      font-weight: bold;
+      display: block;
+      width: fit-content;
+      margin: auto;
+    }
+    .header-logo img {
+      max-height: 100%;
+    }
+    span.logo-main {
+      font-size: 1.2em;
+    }
+
+    .header-bottom {
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5vw;
+      height: 56px;
+      position: relative;
+    }
+
+    /* ---- メインナビ ---- */
+    .nav-main {
+      display: flex;
+      gap: 3vw;
+      align-items: center;
+      font-family: sans-serif;
+      margin: auto;
+    }
+    .nav-link,
+    .dropdown-toggle {
+      color: #111;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.6rem;
+      font-family: sans-serif;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .nav-link {
+      padding: 0 1vw;
+    }
+
+    .nav-link:hover,
+    .dropdown-toggle:hover {
+      color: #c00;
+    }
+    .arrow {
+      font-size: 0.9em;
+    }
+
+    /* --- ドロップダウンのアコーディオンスタイル --- */
+    .dropdown {
+      display: inline-block;
+    }
+    .dropdown-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 2.1em;
+      left: 0;
+      min-width: 250px;
+      background: #fff;
+      box-shadow: 0 2px 16px #0002;
+      border-radius: 4px;
+      border: 1px solid #eee;
+      z-index: 1000;
+      animation: fadeIn 0.16s;
+    }
+    .dropdown.open > .dropdown-menu {
+      display: block;
+    }
+
+    .accordion-menu {
+    }
+    .accordion-item,
+    .accordion-subitem {
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .accordion-title {
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-size: 1.07em;
+      font-weight: bold;
+      padding: 0.8em 1.3em 0.8em 1.3em;
+      cursor: pointer;
+      position: relative;
+      color: #222;
+    }
+    .accordion-title::after {
+      content: '▼';
+      position: absolute;
+      right: 1.2em;
+      top: 50%;
+      transform: translateY(-50%) rotate(0deg);
+      font-size: 0.8em;
+      transition: transform 0.4s;
+    }
+    .accordion-item.open > .accordion-title::after,
+    .accordion-subitem.open > .accordion-title::after {
+      transform: translateY(-50%) rotate(180deg);
+    }
+    .accordion-panel {
+      display: block;
+      max-height: 0;
+      overflow: hidden;
+      background: #fafafa;
+      transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s;
+    }
+    .accordion-item.open > .accordion-panel,
+    .accordion-subitem.open > .accordion-panel {
+      max-height: 500px;
+    }
+
+    .accordion-panel a {
+      display: block;
+      padding: 0.6em 0 0.6em 2rem;
+      text-decoration: none;
+      font-size: 0.98em;
+      color: black;
+      width: 100%;
+      transition: background 0.2s ease-in-out;
+    }
+    .accordion-panel a:hover {
+      color: #c00;
+      background: #e0e0e0;
+    }
+    a.dropdown-item {
+      color: #000;
+      padding: 0.7em 1.3em;
+      text-decoration: none;
+      background: none;
+      border: none;
+      display: block;
+      font-size: 1.05em;
+      transition: background 0.2s ease-in-out;
+    }
+
+    a.dropdown-item:hover {
+      color: #c00;
+      background: #e0e0e0;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ---- アイコン類 ---- */
+    .header-icons {
+      display: flex;
+      gap: 1.1em;
+      align-items: center;
+      margin-right: 0;
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      padding: 0 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      color: #222;
+      transition: color 0.15s;
+    }
+    .icon-btn:hover {
+      color: #c00;
+    }
+    .icon-btn svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+      stroke-width: 1.7;
+    }
+
+    /* ---- 検索フォーム ---- */
+    .header-search-form {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      box-shadow: 0 6px 16px #0002;
+      padding: 0 2rem;
+      z-index: 200;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+    }
+    .header-search-form form {
+      width: 100%;
+      text-align: end;
+      padding: 0.2em 0;
+    }
+    .header-search-form input[type='search'] {
+      width: 280px;
+      font-size: 1.6rem;
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      margin-right: 0.8rem;
+      height: 36px;
+      padding: 0 1rem;
+    }
+
+    .header-search-form button[type='submit'] {
+      font-size: 1.6rem;
+      padding: 0.5rem 1.2rem;
+      background: #000000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ---- レスポンシブ ---- */
+
+    /* PC版 */
+    @media (min-width: 750px) {
+      .header-search-form.active {
+        max-height: 120px; /* 検索フォームの高さ分 */
+        opacity: 1;
+        padding: 1rem 2rem;
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .header-logo img {
+        height: 32px;
+      }
+    }
+
+    @media (max-width: 749px) {
+      .nav-main {
+        gap: 4vw;
+      }
+      .nav-link,
+      .dropdown-toggle {
+        font-size: 3vw;
+      }
+      .header-top {
+        padding: 2vw 0;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+      .header-logo {
+        height: 6vw;
+        position: relative;
+        width: 100%;
+      }
+      .header-logo img {
+        {% comment %} position: absolute;
+        left: 5%; {% endcomment %}
+      }
+
+      .dropdown-menu {
+        right: 0;
+      }
+      .header-bottom {
+        flex-direction: column;
+        height: auto;
+        padding: 8px 0;
+      }
+      .header-icons {
+        position: absolute;
+        right: 0;
+        height: 6vw;
+        gap: 2px;
+      }
+      .icon-btn svg {
+        color: white;
+      }
+    }
+  }
+</style>
+
+<header id="site-header">
+  <div class="header-top">
+    <a href="/" class="header-logo">
+      <img src="{{ 'PC_logo.webp' | asset_url }}" class="is-pc" alt="OTAKARAYA ONLINE STORE">
+      <img src="{{ 'SP_logo.webp' | asset_url }}" class="is-sp" alt="OTAKARAYA ONLINE STORE">
+    </a>
+
+    <div class="header-icons is-sp">
+      <button class="icon-btn searchToggle" aria-label="検索">
+        <!-- 虫眼鏡SVG -->
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="17" y1="17" x2="21" y2="21"/>
+        </svg>
+      </button>
+      <a href="/account/" class="icon-btn" aria-label="アカウント">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="10" cy="8" r="4"/><path d="M2 20c0-4 8-4 8-4s8 0 8 4"/>
+        </svg>
+      </a>
+      <a href="/apps/wishlist/" class="icon-btn" aria-label="お気に入り">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 21C12 21 4 13.5 4 8.5C4 5.5 6.5 3 9.5 3C11 3 12 4.5 12 4.5C12 4.5 13 3 14.5 3C17.5 3 20 5.5 20 8.5C20 13.5 12 21 12 21Z"/>
+        </svg>
+      </a>
+      <a href="/cart/" class="icon-btn" aria-label="カート">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h7.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+  <div class="header-bottom">
+    <nav class="nav-main">
+      <a href="/" class="nav-link">HOME</a>
+      <a href="/collections/all" class="nav-link">商品一覧</a>
+
+      <!-- ブランドから探す（3階層ドロップダウン） -->
+      <div class="dropdown">
+        <button class="dropdown-toggle nav-link">ブランドから探す <span class="arrow">&#x25BE;</span></button>
+        <div class="dropdown-menu accordion-menu">
+          <!-- ブランドジャンル -->
+          <div class="accordion-item">
+            <button class="accordion-title">ブランドバッグ</button>
+            <div class="accordion-panel">
+              <a href="/collections/brand-louisvuitton-bag">ルイ・ヴィトン</a>
+              <a href="/collections/brand-chanel-bag">シャネル</a>
+              <a href="/collections/brand-hermes-bag">エルメス</a>
+              <a href="/collections/brand-gucci-bag">グッチ</a>
+              <a href="/collections/brand-prada-bag">プラダ</a>
+              <a href="/collections/brand-celine-bag">セリーヌ</a>
+              <a href="/collections/brand-christiandior-bag">クリスチャンディオール</a>
+              <a href="/collections/brand-other-bag">その他ブランドバッグ</a>
+            </div>
+          </div>
+
+          <!-- ブランドアクセサリー -->
+          <div class="accordion-item">
+            <button class="accordion-title">ブランドアクセサリー</button>
+            <div class="accordion-panel">
+              <a href="/collections/brand-cartier-accessory">カルティエ</a>
+              <a href="/collections/brand-chanel-accessory">シャネル</a>
+              <a href="/collections/brand-tiffany-accessory">ティファニー</a>
+              <a href="/collections/brand-christiandior-accessory">クリスチャンディオール</a>
+              <a href="/collections/brand-hermes-accessory">エルメス</a>
+              <a href="/collections/brand-vancleefarpels-accessory">ヴァンクリーフ＆アーペル</a>
+              <a href="/collections/brand-nonbrandjewelry">ノンブランドジュエリー</a>
+              <a href="/collections/brand-kihei">喜平</a>
+            </div>
+          </div>
+
+          <!-- アパレル -->
+          <div class="accordion-item">
+            <button class="accordion-title">アパレル</button>
+            <div class="accordion-panel">
+              <a href="/collections/apparel-moncler">モンクレール</a>
+              <a href="/collections/apparel-canadagoose">カナダグース</a>
+              <a href="/collections/apparel-hermes">エルメス</a>
+              <a href="/collections/apparel-chanel">シャネル</a>
+              <a href="/collections/apparel-louisvuitton">ルイ・ヴィトン</a>
+              <a href="/collections/apparel-gucci">グッチ</a>
+              <a href="/collections/apparel-prada">プラダ</a>
+              <a href="/collections/apparel-burberry">バーバリー</a>
+            </div>
+          </div>
+
+          <!-- 時計ジャンル -->
+          <div class="accordion-item">
+            <button class="accordion-title">時計</button>
+            <div class="accordion-panel">
+              <a href="/collections/tokei-rolex">ロレックス</a>
+              <a href="/collections/tokei-cartier">カルティエ</a>
+              <a href="/collections/tokei-omega">オメガ</a>
+              <a href="/collections/tokei-breitling">ブライトリング</a>
+              <a href="/collections/tokei-hublot">ウブロ</a>
+              <a href="/collections/tokei-grandseiko">グランドセイコー</a>
+              <a href="/collections/tokei-iwc">IWC</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- タイプから探す -->
+      <div class="dropdown">
+        <button class="dropdown-toggle nav-link">タイプから探す <span class="arrow">&#x25BE;</span></button>
+        <div class="dropdown-menu">
+          <a href="/collections/ladies" class="dropdown-item">レディース</a>
+          <a href="/collections/mens" class="dropdown-item">メンズ</a>
+          <a href="/collections/unisex" class="dropdown-item">ユニセックス</a>
+        </div>
+      </div>
+    </nav>
+    <div class="header-icons is-pc">
+      <button class="icon-btn searchToggle" aria-label="検索">
+        <!-- 虫眼鏡SVG -->
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="17" y1="17" x2="21" y2="21"/>
+        </svg>
+      </button>
+      <a href="/account/" class="icon-btn" aria-label="アカウント">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="10" cy="8" r="4"/><path d="M2 20c0-4 8-4 8-4s8 0 8 4"/>
+        </svg>
+      </a>
+      <a href="/apps/wishlist/" class="icon-btn" aria-label="お気に入り">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 21C12 21 4 13.5 4 8.5C4 5.5 6.5 3 9.5 3C11 3 12 4.5 12 4.5C12 4.5 13 3 14.5 3C17.5 3 20 5.5 20 8.5C20 13.5 12 21 12 21Z"/>
+        </svg>
+      </a>
+      <a href="/cart/" class="icon-btn" aria-label="カート">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h7.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+  <div class="header-search-form" id="searchForm">
+    <form action="/search" method="get">
+      <input type="search" name="q" placeholder="キーワード検索">
+      <button type="submit">検索</button>
+    </form>
+  </div>
+</header>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // ドロップダウン本体（クリックで開閉＋外クリックで閉じる）
+    document.querySelectorAll('.dropdown-toggle').forEach(function (toggle) {
+      toggle.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelectorAll('.dropdown').forEach(function (dd) {
+          if (dd !== toggle.parentElement) dd.classList.remove('open');
+        });
+        toggle.parentElement.classList.toggle('open');
+      });
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown').forEach(function (dd) {
+          dd.classList.remove('open');
+        });
+      }
+    });
+
+    // アコーディオン（親・子どちらも対応）
+    document.querySelectorAll('.accordion-title').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var parent = btn.parentElement;
+        var isOpen = parent.classList.contains('open');
+        // 同階層で1つだけ開く（複数同時に開きたい場合はこの処理を削除）
+        var siblings = Array.from(parent.parentElement.children).filter(function (el) {
+          return (
+            el !== parent && (el.classList.contains('accordion-item') || el.classList.contains('accordion-subitem'))
+          );
+        });
+        siblings.forEach(function (sib) {
+          sib.classList.remove('open');
+        });
+        // 自分をトグル
+        parent.classList.toggle('open', !isOpen);
+      });
+    });
+
+    // 検索フォームトグル（複数ボタンに対応）
+    document.querySelectorAll('.searchToggle').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const form = document.getElementById('searchForm');
+        form.classList.toggle('active');
+
+        // PC時、フォーム表示時は必ずヘッダーを表示（隠れてたら出す）
+        const header = document.getElementById('site-header');
+        if (window.innerWidth > 749 && form.classList.contains('active')) {
+          header.style.transform = 'translateY(0)';
+        }
+        // 検索窓をフォーカス
+        if (form.classList.contains('active')) {
+          setTimeout(function () {
+            form.querySelector('input[type="search"]').focus();
+          }, 250);
+        }
+      });
+    });
+    document.addEventListener('click', function (e) {
+      const form = document.getElementById('searchForm');
+      if (!form.contains(e.target) && !e.target.classList.contains('searchToggle')) {
+        form.classList.remove('active');
+      }
+    });
+
+    // --- ヘッダーのスクロール隠し ---
+    const header = document.getElementById('site-header');
+    if (header) {
+      let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+      const headerHeight = header.offsetHeight;
+
+      window.addEventListener(
+        'scroll',
+        function () {
+          // 検索フォームが開いている間は隠さない
+          const form = document.getElementById('searchForm');
+          if (form && form.classList.contains('active')) {
+            header.style.transform = 'translateY(0)';
+            return;
+          }
+
+          const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+          if (currentScrollY > lastScrollY && currentScrollY > headerHeight) {
+            header.style.transform = 'translateY(-100%)';
+          } else if (currentScrollY < lastScrollY) {
+            header.style.transform = 'translateY(0)';
+          } else if (currentScrollY <= 0) {
+            header.style.transform = 'translateY(0)';
+          }
+          lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY;
+        },
+        false
+      );
+    }
+  });
+</script>

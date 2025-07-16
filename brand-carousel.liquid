@@ -1,0 +1,233 @@
+<style>
+  #brand-carousel-{{ section.id }} {
+     max-width: 1400px;
+     margin: auto;
+     padding: 4rem 60px;
+   }
+  #brand-carousel-{{ section.id }} .carousel-heading {
+     text-align: center;
+     font-size: 3rem;
+     letter-spacing: 4px;
+     font-family: 'Noto Sans JP';
+   }
+  #brand-carousel-{{ section.id }} .carousel-subheading {
+     text-align: center;
+     margin-bottom: 20px;
+     font-family: 'Noto Sans JP';
+   }
+   #brand-carousel-{{ section.id }} .splide__slide {
+    box-sizing: border-box;
+  }
+  #brand-carousel-{{ section.id }} .splide__slide img {
+     width: 100%;
+   }
+
+  #brand-carousel-{{ section.id }} .carousel-btn-area {
+     text-align: center;
+     margin-top: 6rem;
+   }
+  #brand-carousel-{{ section.id }} .carousel-btn {
+     display: inline-block;
+     background: transparent;
+     color: black;
+     padding: 8px 64px;
+     border-radius: 6px;
+     font-size: 1.6rem;
+     text-decoration: none;
+     transition: background 0.5s;
+     border: solid 2px black;
+     letter-spacing: 6px;
+   }
+  #brand-carousel-{{ section.id }} .carousel-btn:hover {
+     background: #222;
+     color: white;
+   }
+
+  #brand-carousel-{{ section.id }} .splide__pagination {
+     display: flex !important;
+     flex-wrap: nowrap;
+   }
+  #brand-carousel-{{ section.id }} .splide__pagination {
+     bottom: 10rem;
+     position: relative;
+   }
+
+  #brand-carousel-{{ section.id }} .splide__slide {
+   }
+
+   /* --- 矢印カスタム --- */
+  #brand-carousel-{{ section.id }} .splide__arrow {
+     background: transparent;
+     width: 44px;
+     height: 44px;
+     top: 50%;
+     transform: translateY(-100%);
+     border: none;
+     z-index: 10;
+     box-shadow: none;
+     cursor: pointer;
+     /* SVGは消す */
+   }
+  #brand-carousel-{{ section.id }} .splide__arrow svg {
+     display: none !important;
+   }
+   div#brand-carousel-track {
+     width: 90%;
+     margin: auto;
+   }
+
+  #brand-carousel-{{ section.id }} .splide__arrow--prev::before,
+  #brand-carousel-{{ section.id }} .splide__arrow--next::before {
+     content: '';
+     display: block;
+     width: 0;
+     height: 0;
+     margin: 0 auto;
+     border-style: solid;
+   }
+
+   /* ←左（三角形） */
+  #brand-carousel-{{ section.id }} .splide__arrow--prev::before {
+     content: '';
+     position: absolute;
+     width: 50%;
+     height: 50%;
+     border-top: 2px #000 !important;
+     border-right: 2px #000 !important;
+     top: 50%;
+     left: 50%;
+     transform: translate(-70%, -50%) rotate(45deg);
+   }
+
+   /* →右（三角形） */
+  #brand-carousel-{{ section.id }} .splide__arrow--next::before {
+     content: '';
+     position: absolute;
+     width: 50%;
+     height: 50%;
+     border-bottom: 2px #000 !important;
+     border-left: 2px #000 !important;
+     top: 50%;
+     left: 70%;
+     transform: translate(-70%, -50%) rotate(45deg);
+   }
+
+
+   @media (min-width: 750px) {
+
+   }
+   /* SP版 */
+   @media (max-width: 749px) {
+
+  #brand-carousel-{{ section.id }} {
+    padding: 4rem 24px;
+  }
+    #brand-carousel-{{ section.id }} .splide__arrow {
+       transform: translateY(-50%);
+     }
+   }
+</style>
+
+<div id="brand-carousel-{{ section.id }}" class="splide">
+  {% if section.settings.heading != blank %}
+    <div class="carousel-heading">{{ section.settings.heading }}</div>
+  {% endif %}
+  {% if section.settings.subheading != blank %}
+    <div class="carousel-subheading">{{ section.settings.subheading }}</div>
+  {% endif %}
+  <div class="splide__track">
+    <ul class="splide__list">
+      {% for block in section.blocks %}
+        <li class="splide__slide">
+          {% if block.settings.link != blank %}
+            <a href="{{ block.settings.link }}">
+              <img src="{{ block.settings.image | image_url: width:600 }}" alt="{{ block.settings.alt_text | escape }}">
+            </a>
+          {% else %}
+            <img src="{{ block.settings.image | image_url: width:600 }}" alt="{{ block.settings.alt_text | escape }}">
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% if section.settings.btn_link != blank %}
+    <div class="carousel-btn-area">
+      <a class="carousel-btn" href="{{ section.settings.btn_link }}">VIEW MORE</a>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var carouselId = '#brand-carousel-{{ section.id }}';
+    if (typeof Splide !== 'undefined') {
+      new Splide(carouselId, {
+        type: 'loop',
+        perPage: 5,
+        perMove: 1,
+        autoplay: true,
+        interval: 3000,
+        pagination: true,
+        arrows: true,
+        gap: '20px',
+        focus: 'center',
+        breakpoints: {
+          990: { perPage: 3, gap: '12px' },
+          750: { perPage: 2, gap: '8px', focus: false },
+        },
+      }).mount();
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "ブランドカルーセル",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "タイトル（見出し）"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "サブタイトル"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "ボタンのリンク先"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "スライド",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "画像"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "画像のリンク先（任意）"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "画像のaltテキスト"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    {
+      "name": "ブランドカルーセル"
+    }
+  ]
+}
+{% endschema %}

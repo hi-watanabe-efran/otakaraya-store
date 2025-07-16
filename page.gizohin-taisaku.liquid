@@ -1,0 +1,464 @@
+<!-- 偽造品（コピー品）対策ページ | OTAKARAYA ONLINE STORE -->
+<!-- 画像のファイル名は自由に変更してください。Alt テキストは日本語で記述しています -->
+
+<style>
+  #gizohin-taisaku {
+    padding: 60px 0;
+    background: #f1f1ee;
+    font-family: 'Noto Sans JP', sans-serif;
+
+    ul {
+      list-style: none;
+    }
+
+    section {
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    /* ------ ルート ------ */
+    .counterfeit-page {
+      padding: 0 5%;
+    }
+
+    .counterfeit-page h1 {
+      font-size: 32px;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-family: 'Noto Sans JP';
+      font-weight: bold;
+    }
+
+    .counterfeit-page h2 {
+      font-size: 32px;
+      font-family: 'Noto Sans JP';
+      font-weight: 700;
+    }
+    .counterfeit-page h3 {
+      font-weight: 700;
+      font-size: 2rem;
+      font-family: 'Noto Sans JP';
+      font-weight: 700;
+    }
+    .counterfeit-page h4 {
+      font-size: 32px;
+      margin: 1.5rem 0;
+      text-align: center;
+      font-family: 'Noto Sans JP';
+      font-weight: 600;
+    }
+    .counterfeit-page h5 {
+      font-size: 32px;
+      margin: 1.5rem 0 0.75rem;
+      text-align: center;
+      font-family: 'Noto Sans JP';
+      font-weight: 500;
+    }
+    .counterfeit-page h6 {
+      font-size: 2rem;
+      margin: 1rem 0 0.5rem;
+      color: black;
+    }
+    .counterfeit-page p {
+      font-size: 1.8rem;
+      line-height: 1.4;
+    }
+
+    /* ------ 小見出しセンター寄せ ------ */
+    .section-title-center {
+      margin-top: 6rem;
+      text-align: center;
+    }
+
+    .hero img {
+      max-height: 100%;
+      max-width: 100%;
+    }
+    /* ------ 三原則 ------ */
+    .principles {
+      gap: 4rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      padding: 0 2rem;
+      margin-top: 4rem;
+    }
+    .principle {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 2rem 1rem;
+      text-align: center;
+      height: 80%;
+    }
+    .principle img {
+      height: 160px;
+    }
+
+    /* ------ 黒帯セクション見出し ------ */
+    .section-header {
+      display: flex;
+      width: 100%;
+      height: 48px;
+      margin-top: 6rem;
+    }
+    .section-index {
+      background: #c8c8c8;
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      aspect-ratio: 1;
+    }
+    .section-title {
+      flex: 1 1 auto;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding-left: 1rem;
+    }
+
+    /* ------ 特徴カード ------ */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 4rem;
+      margin-top: 4rem;
+      margin-bottom: 4rem;
+    }
+    .feature {
+      background: #ffffff;
+      border-radius: 12px;
+    }
+    .feature img {
+      border-radius: 12px 12px 0px 0px;
+      width: 100%;
+      max-width: 100%;
+    }
+    .feature h5 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .feature p {
+      padding: 0 2rem;
+      font-size: 1.8rem;
+    }
+
+    /* ------ ポリシーカード (ラベル重ね) ------ */
+    .policy-label {
+      background: #000;
+      color: #fff;
+      font-weight: 700;
+      font-size: 2rem;
+      padding: 0.5rem 1rem;
+      width: fit-content;
+      margin-top: 3rem;
+    }
+    .policy-card {
+      position: relative;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 0px 12px 12px 12px;
+      padding: 0rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .policy-card p {
+    }
+
+    /* ------ 返送先テーブル ------ */
+    .return-info_block {
+      margin-top: 6rem;
+      margin-bottom: 12rem;
+    }
+
+    .return-info {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 2rem;
+      margin-top: 4rem;
+    }
+
+    .return-info p {
+      margin: 0;
+    }
+
+    /* ------ フッター風ヒーロー ------ */
+    .closing-hero {
+      margin-top: 3rem;
+      position: relative;
+      isolation: isolate;
+    }
+    .closing-hero img {
+      width: 100%;
+    }
+    .closing-hero__text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+    }
+    .closing-hero__text h3 {
+      font-size: clamp(1.25rem, 3vw, 1.75rem);
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+    .closing-hero__text p {
+      max-width: 70ch;
+    }
+
+    /* ------ Responsive tweaks ------ */
+    @media (max-width: 750px) {
+      .counterfeit-page h1 {
+        font-size: 20px;
+      }
+      .counterfeit-page h2 {
+        font-size: 20px;
+      }
+      .counterfeit-page h4 {
+        font-size: 20px;
+        text-align: start;
+      }
+      .counterfeit-page h5 {
+        font-size: 20px;
+      }
+      .counterfeit-page h6 {
+        margin: 0;
+      }
+      .counterfeit-page p {
+        font-size: 1.4rem;
+        text-align: start;
+      }
+
+      .principle-heading {
+      }
+      .principles {
+        padding: 0;
+        margin-bottom: 8rem;
+      }
+      .principle {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 2rem;
+        height: auto;
+      }
+      .principle img {
+        height: auto;
+        width: 100px;
+      }
+      .hero {
+        flex-direction: column;
+        text-align: center;
+      }
+      .hero__img {
+        flex: none;
+        width: 70%;
+      }
+    }
+  }
+</style>
+
+<div id="gizohin-taisaku">
+  <div class="counterfeit-page">
+    <section>
+      <!-- 1️⃣ タイトル -->
+      <h1>偽造品（コピー品）対策について</h1>
+
+      <!-- 2️⃣ ヒーローバナー -->
+      <div class="hero">
+        <img
+          class="is-pc"
+          src="/cdn/shop/files/gizohin-taisaku_pc.webp"
+          alt="品質へのコミットメントが、お客様の笑顔につながる"
+          class="hero__img"
+        >
+
+        <img
+          class="is-sp"
+          src="/cdn/shop/files/gizohin-taisaku_sp.webp"
+          alt="品質へのコミットメントが、お客様の笑顔につながる"
+          class="hero__img"
+        >
+      </div>
+
+      <!-- 3️⃣ イントロダクション -->
+      <p style="margin-top:1.75rem;">
+        OTAKARAYA ONLINE
+        STOREでは、お客様に安心してお買い物をお楽しみいただくため、偽造品の排除に徹底して取り組んでおります。<br>
+        「品質への自信こそが、お客様の安心につながる」と信じて培ってきた、長年の実績とノウハウを持つ「おたからや」だからこそできる、万全の品質保証体制をお約束します。
+      </p>
+
+      <!-- 4️⃣ 三原則 -->
+      <h2 class="section-title-center">おたからや品質徹底の三原則</h2>
+      <p style="text-align:center;">
+        私たちは、お客様に本当の価値のある商品をお届けするために、以下の「おたからや三原則」を掲げ、徹底しています。
+      </p>
+      <ul class="principles">
+        <li>
+          <h4 class="principle-heading is-pc">仕入れない</h4>
+          <div class="principle">
+            <img
+              src="/cdn/shop/files/ac210e2727dfcc751dfcff704c0783eb_650d4b5f-62c4-47bc-b06a-f42f548b4568.png"
+              alt="仕入れないアイコン"
+            >
+            <div>
+              <h4 class="principle-heading is-sp">仕入れない</h4>
+              <p>
+                偽造品を仕入れない<br>
+                徹底した真贋
+              </p>
+            </div>
+          </div>
+        </li>
+        <li>
+          <h4 class="principle-heading is-pc">届けない</h4>
+          <div class="principle">
+            <img
+              src="/cdn/shop/files/04576a75ac16d5f9416b5a4a30b4c317_3d247b5d-adf9-4059-8d6f-b90c6216157b.png"
+              alt="届けないアイコン"
+            >
+            <div>
+              <h4 class="principle-heading is-sp">届けない</h4>
+              <p>
+                万が一混入してしまっても<br>
+                本部のクロスチェックにより<br class="is-pc">
+                偽造品の販売を未然に防ぎます
+              </p>
+            </div>
+          </div>
+        </li>
+        <li>
+          <h4 class="principle-heading is-pc">不安にさせない</h4>
+          <div class="principle">
+            <img
+              src="/cdn/shop/files/46d82202a84493a18587f158cf00c1bc_59f4896c-ebe1-4415-a687-ee9e9169e1c2.png"
+              alt="不安にさせないアイコン"
+            >
+            <div>
+              <h4 class="principle-heading is-sp">不安にさせない</h4>
+              <p>
+                確かな真贋力と保証体制で<br>
+                お客様を不安にさせません
+              </p>
+            </div>
+          </div>
+        </li>
+      </ul>
+
+      <!-- 5️⃣ セクション 1 真贋鑑定 -->
+      <h3 class="section-header">
+        <span class="section-index">1</span>
+        <span class="section-title">徹底した真贋鑑定</span>
+      </h3>
+      <p style="margin-top:1rem;">
+        「安心をかたちに。それが私たちの品質です。」この言葉の通り、OTAKARAYA ONLINE
+        STOREでは、商品一つひとつに『安心』を込めてお届けできるよう、厳格な真贋鑑定を行っています。
+      </p>
+
+      <div class="features">
+        <div class="feature">
+          <img src="/cdn/shop/files/appraisal_img_1.webp" alt="プロの査定風景">
+          <h5>価値が分かるプロの査定</h5>
+          <p>
+            2000年の創業から現在に至るまでの経験を通じて磨かれたノウハウを持つプロの鑑定士が、多岐にわたるブランド品に関する専門知識と鑑定技術を駆使し、一点一点丁寧に真贋鑑定を行います。
+          </p>
+        </div>
+        <div class="feature">
+          <img src="/cdn/shop/files/appraisal_img_2_2.webp" alt="全国に1,450店舗以上展開">
+          <h5>全国の買取ノウハウが集約</h5>
+          <p>
+            全国約1,450店舗以上の買取実績で培われた豊富なデータと最新の偽造品情報を、各店舗からOTAKARAYA ONLINE
+            STOREへ集約。これにより、常に最先端の鑑定精度を保っています。
+          </p>
+        </div>
+        <div class="feature">
+          <img src="/cdn/shop/files/appraisal_img_3.webp" alt="複数人チェック">
+          <h5>複数人によるクロスチェック</h5>
+          <p>
+            鑑定士一人による判断に頼らず、複数の鑑定士が多角的にチェックすることで、より精度の高い真贋を実現します。
+          </p>
+        </div>
+      </div>
+
+      <!-- 6️⃣ セクション 2 対応ポリシー -->
+      <h3 class="section-header">
+        <span class="section-index">2</span>
+        <span class="section-title">万が一の偽造品に対する対応</span>
+      </h3>
+
+      <p style="margin-top:1rem;">
+        私たちは真贋鑑定に絶対の自信を持っておりますが、万が一、OTAKARAYA ONLINE
+        STOREでご購入いただいた商品が偽造品であると判明した場合は、送料を含めた全額の返金にて対応させていただきます。
+      </p>
+
+      <!-- 返品・返金保証カード -->
+      <div class="policy-label">返品・返金保証</div>
+      <div class="policy-card">
+        <p>
+          商品到着後、お客様ご自身で偽造品と判断された場合、または第三者機関の鑑定により偽造品と判断された場合は、速やかにご連絡ください。
+        </p>
+      </div>
+
+      <div class="policy-label">迅速な対応</div>
+      <div class="policy-card">
+        <p>
+          ご連絡をいただいた後、弊社の基準に基づき事実確認を行い、OTAKARAYA ONLINE
+          STOREでご購入いただいた商品が偽造品であると判断した場合は迅速に返金手続きを進めます。
+        </p>
+      </div>
+
+      <!-- 7️⃣ 返送先情報 -->
+      <div class="return-info_block">
+        <div class="return-info">
+          <h6>［返品連絡先］</h6>
+          <p>
+            株式会社いーふらん おたからや EC事業部<br>
+            電話番号：045-330-4418<br>
+            メールアドレス：shopify@otakaraya.net
+          </p>
+        </div>
+
+        <div class="return-info">
+          <h6>［返送先住所］</h6>
+          <p>
+            〒220-6212<br>
+            神奈川県横浜市西区みなとみらい2丁目3−5 クイーンズタワーC12階<br>
+            株式会社いーふらん おたからや EC事業部<br>
+            TEL：045-330-4418<br>
+            ※返送の際の配送会社の指定はございませんが、万が一返送時に事故・紛失があった場合、当店は一切責任を負いかねますので、予めご了承ください。
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="closing-hero">
+    <img
+      class="is-pc"
+      src="/cdn/shop/files/guidance_img_pc_1.webp"
+      alt="OTAKARAYA ONLINE STOREよりお客様へのご案内です。"
+    >
+    <img
+      class="is-sp"
+      src="/cdn/shop/files/guidance_img_sp.webp"
+      alt="OTAKARAYA ONLINE STOREよりお客様へのご案内です。"
+    >
+  </div>
+
+  <div class="counterfeit-page">
+    <section>
+      <!-- 8️⃣ クロージングヒーロー -->
+
+      <p>
+        品質へのコミットメントが、お客様の笑顔につながる。OTAKARAYA ONLINE
+        STOREは、お客様に安心して本物の商品をお届けできるよう、最大限の努力をしております。<br>
+        お客様に安心してショッピングをお楽しみいただくことが、私たちの何よりの喜びです。<br>
+        どうぞこれからも「OTAKARAYA ONLINE STORE」をよろしくお願いいたします。
+      </p>
+    </section>
+  </div>
+</div>
