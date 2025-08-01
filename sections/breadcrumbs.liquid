@@ -88,7 +88,7 @@
           <span class="breadcrumbs__separator" aria-hidden="true">></span>
         </li>
 
-        {%- if current_path == '/apps/wishlist/' -%}
+        {%- if current_path == '/apps/wishlist' -%}
           <li class="breadcrumbs__item">
             <span aria-current="page">お気に入り</span>
           </li>
@@ -98,13 +98,123 @@
             <li class="breadcrumbs__item">
               <span aria-current="page">商品一覧</span>
             </li>
+
           {%- else -%}
+            {%- comment %}
+              コレクションページのパンくず生成ロジック
+            {%- endcomment %}
+            {%- assign handle = collection.handle -%}
+            {%- assign hyphen_count = handle | split: '-' | size | minus: 1 -%}
+            {%- assign handle_parts = handle | split: '-' -%}
+
+            {%- assign final_crumb_title = collection.title
+              | split: ' - '
+              | last
+              | remove: 'ブランド-'
+              | remove: 'アイテム-'
+            -%}
+
+            {%- comment %} ベースとなる「商品一覧」のリンク {%- endcomment %}
             <li class="breadcrumbs__item">
               <a href="{{ routes.collections_url }}" class="breadcrumbs__link">商品一覧</a>
               <span class="breadcrumbs__separator" aria-hidden="true">></span>
             </li>
+
+            {%- comment %}
+              1. カテゴリリンクの表示
+            {%- endcomment %}
+            {%- assign category_collection = null -%}
+            {%- if handle contains 'tokei' -%}
+              {%- assign category_collection = collections.tokei -%}
+            {%- elsif handle contains 'bag' -%}
+              {%- assign category_collection = collections.bag -%}
+            {%- elsif handle contains 'wallet' -%}
+              {%- assign category_collection = collections.wallet -%}
+            {%- elsif handle contains 'accessory' -%}
+              {%- assign category_collection = collections.accessory -%}
+            {%- endif -%}
+
+            {%- if category_collection -%}
+              {%- if category_collection.title != final_crumb_title and category_collection.title != '' -%}
+                <li class="breadcrumbs__item">
+                  <a class="breadcrumbs__link" href="{{ category_collection.url }}">{{ category_collection.title }}</a>
+                  <span class="breadcrumbs__separator" aria-hidden="true">></span>
+                </li>
+              {%- endif -%}
+            {%- endif -%}
+
+            {%- comment %}
+              2. 階層リンクの生成
+            {%- endcomment %}
+            {%- if hyphen_count == 2 -%}
+              {%- assign sub_handle = handle_parts | slice: 0, 2 | join: '-' -%}
+
+              {%- if category_collection and sub_handle contains category_collection.handle -%}
+                {%- assign crumb_collection = collections[sub_handle] -%}
+                {%- if crumb_collection -%}
+                  {%- assign crumb_title = crumb_collection.title
+                    | split: ' - '
+                    | last
+                    | remove: 'ブランド-'
+                    | remove: 'アイテム-'
+                  -%}
+                  {%- comment %} ▼▼▼ 変更点: 空白でないこともチェック ▼▼▼ {%- endcomment %}
+                  {%- if crumb_title != final_crumb_title and crumb_title != blank -%}
+                    <li class="breadcrumbs__item">
+                      <a class="breadcrumbs__link" href="{{ crumb_collection.url }}">{{ crumb_title }}</a>
+                      <span class="breadcrumbs__separator" aria-hidden="true">></span>
+                    </li>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endif -%}
+
+            {%- elsif hyphen_count == 3 -%}
+              {%- comment %} 最初のリンク (a-b) {%- endcomment %}
+              {%- assign sub_handle_1 = handle_parts | slice: 0, 2 | join: '-' -%}
+              {%- if category_collection and sub_handle_1 contains category_collection.handle -%}
+                {%- assign crumb_collection_1 = collections[sub_handle_1] -%}
+                {%- if crumb_collection_1 -%}
+                  {%- assign crumb_title_1 = crumb_collection_1.title
+                    | split: ' - '
+                    | last
+                    | remove: 'ブランド-'
+                    | remove: 'アイテム-'
+                  -%}
+                  {%- comment %} ▼▼▼ 変更点: 空白でないこともチェック ▼▼▼ {%- endcomment %}
+                  {%- if crumb_title_1 != final_crumb_title and crumb_title_1 != blank -%}
+                    <li class="breadcrumbs__item">
+                      <a class="breadcrumbs__link" href="{{ crumb_collection_1.url }}">{{ crumb_title_1 }}</a>
+                      <span class="breadcrumbs__separator" aria-hidden="true">></span>
+                    </li>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endif -%}
+
+              {%- comment %} 2番目のリンク (a-b-c) {%- endcomment %}
+              {%- assign sub_handle_2 = handle_parts | slice: 0, 3 | join: '-' -%}
+              {%- if category_collection and sub_handle_2 contains category_collection.handle -%}
+                {%- assign crumb_collection_2 = collections[sub_handle_2] -%}
+                {%- if crumb_collection_2 -%}
+                  {%- assign crumb_title_2 = crumb_collection_2.title
+                    | split: ' - '
+                    | last
+                    | remove: 'ブランド-'
+                    | remove: 'アイテム-'
+                  -%}
+                  {%- comment %} ▼▼▼ 変更点: 空白でないこともチェック ▼▼▼ {%- endcomment %}
+                  {%- if crumb_title_2 != final_crumb_title and crumb_title_2 != blank -%}
+                    <li class="breadcrumbs__item">
+                      <a class="breadcrumbs__link" href="{{ crumb_collection_2.url }}">{{ crumb_title_2 }}</a>
+                      <span class="breadcrumbs__separator" aria-hidden="true">></span>
+                    </li>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+
+            {%- comment %} 3. 最終項目（現在のコレクション名） {%- endcomment %}
             <li class="breadcrumbs__item">
-              <span aria-current="page">{{ collection.title }}</span>
+              <span aria-current="page">{{ final_crumb_title }}</span>
             </li>
           {%- endif -%}
 
@@ -115,20 +225,150 @@
             }
           </style>
 
-          {%- if collection -%}
-            <li class="breadcrumbs__item">
-              <a class="breadcrumbs__link" href="{{ collection.url }}">{{ collection.title }}</a>
-              <span class="breadcrumbs__separator" aria-hidden="true">></span>
-            </li>
-          {%- else -%}
-            <li class="breadcrumbs__item">
-              <a href="{{ routes.all_products_collection_url }}" class="breadcrumbs__link">商品一覧</a>
-              <span class="breadcrumbs__separator" aria-hidden="true">></span>
-            </li>
+          {%- comment %}
+            ▼▼▼ ここからロジックを変更 ▼▼▼
+          {%- endcomment %}
+
+          {%- comment %}
+            ステップ1: 主要なカテゴリハンドルが存在するかどうかを確認
+          {%- endcomment %}
+          {%- assign category_handle = '' -%}
+          {%- for c in product.collections -%}
+            {%- if c.handle == 'tokei' or c.handle == 'bag' or c.handle == 'wallet' or c.handle == 'accessory' -%}
+              {%- assign category_handle = c.handle -%}
+              {%- break -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- comment %}
+            ステップ2: 階層の基準となるハンドルを探す（優先度スコアを導入）
+          {%- endcomment %}
+          {%- assign max_score = -1 -%}
+          {%- assign target_collection_handle = '' -%}
+          {%- for c in product.collections -%}
+            {%- assign is_candidate = false -%}
+
+            {%- if category_handle != '' -%}
+              {%- if c.handle contains category_handle -%}
+                {%- assign is_candidate = true -%}
+              {%- endif -%}
+            {%- else -%}
+              {%- if c.handle contains 'brand' or c.handle contains 'tokei' -%}
+                {%- assign is_candidate = true -%}
+              {%- endif -%}
+            {%- endif -%}
+
+            {%- if is_candidate -%}
+              {%- comment %}
+                ★★ ここから優先度スコアの計算 ★★
+              {%- endcomment %}
+              {%- assign current_hyphens = c.handle | split: '-' | size | minus: 1 -%}
+              {%- assign current_score = current_hyphens -%}
+
+              {%- comment %} 'others'が含まれていたらスコアをわずかに減点 {%- endcomment %}
+              {%- if c.handle contains 'others' -%}
+                {%- assign current_score = current_score | minus: 0.5 -%}
+              {%- endif -%}
+
+              {%- comment %} スコアを比較して更新 {%- endcomment %}
+              {%- if current_score > max_score -%}
+                {%- assign max_score = current_score -%}
+                {%- assign target_collection_handle = c.handle -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- comment %}
+            ▲▲▲ 変更ここまで ▲▲▲
+          {%- endcomment %}
+
+          {%- comment %} 2. ベースのパンくずを表示 {%- endcomment %}
+          <li class="breadcrumbs__item">
+            <a href="{{ routes.all_products_collection_url }}" class="breadcrumbs__link">商品一覧</a>
+            <span class="breadcrumbs__separator" aria-hidden="true">></span>
+          </li>
+
+          {%- comment %} カテゴリコレクションへのリンクを追加 {%- endcomment %}
+          {%- if category_handle != '' -%}
+            {%- assign category_collection = collections[category_handle] -%}
+            {%- if category_collection -%}
+              <li class="breadcrumbs__item">
+                <a class="breadcrumbs__link" href="{{ category_collection.url }}">{{ category_collection.title }}</a>
+                <span class="breadcrumbs__separator" aria-hidden="true">></span>
+              </li>
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- comment %} 3. 階層リンクを生成 {%- endcomment %}
+          {%- if target_collection_handle != '' -%}
+            {%- assign handle_parts = target_collection_handle | split: '-' -%}
+            {%- assign temp_handle_url = handle_parts.first -%}
+
+            {%- for part in handle_parts offset: 1 -%}
+              {%- assign temp_handle_url = temp_handle_url | append: '-' | append: part -%}
+              {%- assign should_display = true -%}
+
+              {%- if forloop.first and category_handle != '' -%}
+                {%- unless temp_handle_url contains category_handle -%}
+                  {%- assign should_display = false -%}
+                {%- endunless -%}
+              {%- endif -%}
+
+              {%- if should_display -%}
+                {%- assign crumb_collection = collections[temp_handle_url] -%}
+
+                {%- comment %}
+                  ▼▼▼ 変更点 ▼▼▼
+                  リンク先のコレクションが存在し、かつ、表示名が空でない場合のみリンクを生成します。
+                {%- endcomment %}
+                {%- if crumb_collection -%}
+                  {%- assign crumb_title = crumb_collection.title
+                    | split: ' - '
+                    | last
+                    | remove: 'ブランド-'
+                    | remove: 'アイテム-'
+                  -%}
+
+                  {%- if crumb_title != blank -%}
+                    <li class="breadcrumbs__item">
+                      <a class="breadcrumbs__link" href="{{ crumb_collection.url }}">
+                        {{- crumb_title -}}
+                      </a>
+                      <span class="breadcrumbs__separator" aria-hidden="true">></span>
+                    </li>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
           {%- endif -%}
           <li class="breadcrumbs__item">
             <span aria-current="page">{{ product.title }}</span>
           </li>
+
+          {% comment %}
+            {%- liquid
+              assign found_collection = false
+              echo '<ul>'
+
+              for collection in product.collections
+                if collection.handle contains 'brand' or collection.handle contains 'tokei'
+                  echo '<li>'
+                  echo collection.handle | prepend: 'ハンドル: '
+                  echo ' / '
+                  echo collection.title | prepend: '名前: '
+                  echo '</li>'
+
+                  assign found_collection = true
+                endif
+              endfor
+
+              echo '</ul>'
+
+              if found_collection == false
+                echo '<p>対象のコレクションは見つかりませんでした。</p>'
+              endif
+            -%}
+          {% endcomment %}
 
         {%- elsif template.name == 'blog' -%}
           {%- if current_tags -%}

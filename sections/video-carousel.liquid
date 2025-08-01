@@ -155,7 +155,7 @@
     top: 10px;
     background: none;
     border: none;
-    font-size: 5vw;
+    font-size: 3vw;
     color: #fff;
     cursor: pointer;
     font-family: 'Noto Sans JP';
@@ -241,7 +241,7 @@
       </ul>
     </div>
     <div class="carousel-btn-area">
-      <a class="carousel-btn" href="https://otakaraya-store.com/pages/movies/">VIEW MORE</a>
+      <a class="carousel-btn" href="/pages/movies/">VIEW MORE</a>
     </div>
   </div>
 
@@ -257,64 +257,68 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-  
-   const root = '#video-carousel-{{ section.id }}';
+    const sectionId = '{{ section.id }}';
+    const root = `#video-carousel-${sectionId}`;
     const rootElement = document.querySelector(root);
 
-    // Splideが読み込まれていない、または対象要素がなければ処理を中断
-    if (typeof Splide === 'undefined' || !rootElement) {
+    // ▼▼▼【修正点1】モーダル関連の変数を正しく定義します ▼▼▼
+    const modal = document.getElementById(`vc-modal-${sectionId}`);
+    const inner = modal.querySelector('.vc-modal__inner');
+
+    // Splideライブラリや必須要素がなければ処理を中断
+    if (typeof Splide === 'undefined' || !rootElement || !modal || !inner) {
+      console.error('Video Carousel: Required elements or Splide.js not found.');
       return;
     }
 
     const promises = [];
 
-    /* ---------- YouTube 動画の有効性チェック ---------- */
-    // 'youtube'のプロバイダーを持つスライドをすべて選択
+    /* ---------- YouTube 動画の有効性チェック (oEmbed APIを利用) ---------- */
     document.querySelectorAll(`${root} .splide__slide[data-provider="youtube"]`).forEach((slide) => {
       const videoId = slide.dataset.videoId;
-      // oEmbed APIを使い、動画の存在を確認するPromiseを作成
-      const promise = fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
-        .then(response => {
-          // response.okがfalseの場合 (404 Not Found, 403 Forbiddenなど)
-          // 動画は非公開、削除済み、またはIDが間違っている
+
+      // Promiseを使い、APIからの応答を待つ
+      const promise = fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`)
+        .then((response) => {
+          // response.okがtrue (ステータスコード 200-299) でない場合、
+          // 動画は非公開、削除済み、またはIDが間違っていると判断
           if (!response.ok) {
-            console.warn(`YouTube video with ID ${videoId} is not available. Removing from carousel.`);
+            console.warn(
+              `YouTube video with ID ${videoId} is not available (Status: ${response.status}). Removing from carousel.`
+            );
             slide.remove(); // スライドをDOMから削除
           }
+          // response.okであれば、動画は公開されており有効と判断
         })
-        .catch(error => {
-          // ネットワークエラーなど
+        .catch((error) => {
+          // ネットワークエラーなど、リクエスト自体が失敗した場合
           console.error(`Error checking YouTube video ${videoId}:`, error);
           slide.remove(); // エラー時もスライドを削除
         });
+
       promises.push(promise);
     });
 
-    /* ---------- Vimeo サムネイル取得 ---------- */
-    // 'vimeo'のプロバイダーを持つスライドをすべて選択
+    /* ---------- Vimeo サムネイル取得 (この部分は元のコードのままでOK) ---------- */
     document.querySelectorAll(`${root} .splide__slide[data-provider="vimeo"]`).forEach((slide) => {
       const videoId = slide.dataset.videoId;
       const promise = fetch(`https://vimeo.com/api/v2/video/${videoId}.json`)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           if (data && data[0] && data[0].thumbnail_large) {
             slide.innerHTML = `<img src="${data[0].thumbnail_large}" loading="lazy" alt="Vimeo thumbnail">`;
           } else {
-            // Vimeo動画が見つからない場合もスライドを削除
             slide.remove();
           }
         })
         .catch(() => {
-          // エラー時もスライドを削除
           slide.remove();
         });
       promises.push(promise);
     });
 
     /* ---------- すべてのチェック完了後にSplideを初期化 ---------- */
-    // Promise.allSettled を使い、すべてのAPIチェックが終わるのを待つ
     Promise.allSettled(promises).then(() => {
-      // 有効なスライドが1つ以上残っている場合のみSplideを初期化
       if (rootElement.querySelectorAll('.splide__slide').length > 0) {
         const splide = new Splide(root, {
           type: 'loop',
@@ -329,7 +333,6 @@
           breakpoints: { 750: { padding: '10%' } },
         });
 
-        /* 中央スライドに is-active を付与 */
         const markActive = () => {
           splide.Components.Slides.forEach((Slide) => {
             Slide.slide.classList.toggle('is-active', Slide.index === splide.index);
@@ -337,60 +340,50 @@
         };
 
         splide.on('mounted move', markActive);
+
+        // ▼▼▼【修正点2】Splideの公式イベントを使ってモーダル再生処理を登録 ▼▼▼
+        splide.on('click', (slideObject) => {
+          const slide = slideObject.slide;
+
+          // 中央のアクティブなスライド以外は無視
+          if (!slide.classList.contains('is-active')) return;
+
+          const id = slide.dataset.videoId;
+          const provider = slide.dataset.provider;
+
+          // ▼▼▼【修正点3】正しいYouTube埋め込みURLに修正 ▼▼▼
+          const src =
+            provider === 'youtube'
+              ? `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&rel=0`
+              : `https://player.vimeo.com/video/${id}?autoplay=1&loop=1`;
+
+          inner.innerHTML = `<iframe src="${src}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+          modal.removeAttribute('hidden');
+          document.body.classList.add('vc-modal-open');
+        });
+
         splide.mount();
       } else {
-        // 表示できる動画がない場合、カルーセル全体を非表示にする
-        rootElement.style.display = 'none';
-        const heading = document.querySelector('.carousel-heading');
-        const subheading = document.querySelector('.carousel-subheading');
-        if(heading) heading.style.display = 'none';
-        if(subheading) subheading.style.display = 'none';
-
-        // VIEW MOREボタンも非表示にする
-        const btnArea = document.querySelector('.carousel-btn-area');
-        if (btnArea) {
-            btnArea.style.display = 'none';
-        }
-
+        // 表示できる動画がない場合、セクション全体を非表示にする
+        const section = rootElement.closest('.video-carousel-section');
+        if (section) section.style.display = 'none';
         console.warn('No valid videos found to display in the carousel.');
       }
     });
 
-    /* ---------- モーダル再生 ---------- */
-    document.querySelectorAll(root + ' .splide__slide').forEach((slide) => {
-      slide.addEventListener('click', () => {
-        /* 中央スライド以外は無視 */
-        if (!slide.classList.contains('is-active')) return;
+    // 元のクリックイベントリスナーは不要なため削除
 
-        const id = slide.dataset.videoId;
-        const src =
-          slide.dataset.provider === 'youtube'
-            ? `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&rel=0`
-            : `https://player.vimeo.com/video/${id}?autoplay=1&loop=1`;
-
-        inner.innerHTML = `<iframe src="${src}" frameborder="0" allow="autoplay;fullscreen" allowfullscreen></iframe>`;
-        modal.removeAttribute('hidden');
-        document.body.classList.add('vc-modal-open');
-      });
-    });
-
-    /* ---------- モーダルを閉じる ---------- */
+    /* ---------- モーダルを閉じる処理 (元のコードのままでOK) ---------- */
     const close = () => {
       modal.setAttribute('hidden', true);
       inner.innerHTML = '';
       document.body.classList.remove('vc-modal-open');
     };
 
-    /* × ボタン */
     modal.querySelector('.vc-modal__close').addEventListener('click', close);
 
-    {% comment %} inner.addEventListener('click', (e) => {
-      if (e.target === inner) close();
-    }); {% endcomment %}
-
-    /* モーダル全体で、動画以外をクリックしたら閉じる */
     modal.addEventListener('click', (e) => {
-      if (!e.target.closest('.vc-modal__content')) close();
+      if (e.target.classList.contains('vc-modal__overlay')) close();
     });
   });
 </script>
