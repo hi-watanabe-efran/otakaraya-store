@@ -1,3 +1,9 @@
+{%- comment -%}
+  ========================================
+  // 修正版セクションコード (遅延読み込み対応)
+  ========================================
+{%- endcomment -%}
+
 {% stylesheet %}
   section.responsive-banner {
     max-width: 1200px;
@@ -6,6 +12,7 @@
   }
   section.responsive-banner img {
     max-width: 100%;
+    height: auto; /* 縦横比を維持 */
   }
 
   section.responsive-banner a img {
@@ -18,36 +25,54 @@
   }
 {% endstylesheet %}
 
-<section class="responsive-banner">
+{% comment %} ▼ 修正点：sectionタグにユニークIDを追加 ▼ {% endcomment %}
+<section class="responsive-banner" data-section-id="{{ section.id }}">
+  {%- assign current_lang = request.locale.iso_code -%}
+
   {% for block in section.blocks %}
-    {% assign pc_img = block.settings.image_pc %}
-    {% assign sp_img = block.settings.image_sp %}
-    {% assign link = block.settings.link_url %}
-    {% assign alt = block.settings.alt_text %}
+    {%- assign target_lang = block.settings.lang_code | downcase | strip -%}
 
-    {% if pc_img != blank %}
-      <div class="is-pc">
-        {% if link != blank %}
-          <a href="{{ link }}">
-            <img src="{{ pc_img | img_url: '2048x' }}" alt="{{ alt | escape }}">
-          </a>
-        {% else %}
-          <img src="{{ pc_img | img_url: '2048x' }}" alt="{{ alt | escape }}">
-        {% endif %}
-      </div>
-    {% endif %}
+    {% comment %} ▼ 修正点：バナーのIDにもユニークIDを追加 ▼ {% endcomment %}
+    <div
+      id="banner-{{ block.id }}"
+      class="language-banner {% if target_lang == blank %}default-banner{% endif %}"
+      data-lang="{{ target_lang }}"
+      {% if target_lang != blank %}
+        style="display: none;"
+      {% endif %}
+    >
+      {% comment %} ... 画像などの内部コードは変更なし ... {% endcomment %}
+      {%- assign pc_img = block.settings.image_pc -%}
+      {%- assign sp_img = block.settings.image_sp -%}
+      {%- assign link = block.settings.link_url -%}
+      {%- assign alt = block.settings.alt_text | default: pc_img.alt | default: sp_img.alt | escape -%}
 
-    {% if sp_img != blank %}
-      <div class="is-sp">
-        {% if link != blank %}
-          <a href="{{ link }}">
-            <img src="{{ sp_img | img_url: '2048x' }}" alt="{{ alt | escape }}">
-          </a>
-        {% else %}
-          <img src="{{ sp_img | img_url: '2048x' }}" alt="{{ alt | escape }}">
-        {% endif %}
-      </div>
-    {% endif %}
+      {%- capture pc_image_tag -%}
+        <img src="{{ pc_img | img_url: '1920x' }}" srcset="{{ pc_img | img_url: '750x' }} 750w, {{ pc_img | img_url: '1080x' }} 1080w, {{ pc_img | img_url: '1500x' }} 1500w, {{ pc_img | img_url: '1920x' }} 1920w" sizes="(min-width: 750px) 1200px, 100vw" alt="{{ alt }}" loading="lazy" width="{{ pc_img.width }}" height="{{ pc_img.height }}">
+      {%- endcapture -%}
+
+      {%- capture sp_image_tag -%}
+        <img src="{{ sp_img | img_url: '750x' }}" srcset="{{ sp_img | img_url: '375x' }} 375w, {{ sp_img | img_url: '550x' }} 550w, {{ sp_img | img_url: '750x' }} 750w" sizes="100vw" alt="{{ alt }}" loading="lazy" width="{{ sp_img.width }}" height="{{ sp_img.height }}">
+      {%- endcapture -%}
+
+      {%- if link != blank -%}
+        <a href="{{ link }}">
+          {%- if pc_img != blank -%}
+            <div class="is-pc">{{ pc_image_tag }}</div>
+          {%- endif -%}
+          {%- if sp_img != blank -%}
+            <div class="is-sp">{{ sp_image_tag }}</div>
+          {%- endif -%}
+        </a>
+      {%- else -%}
+        {%- if pc_img != blank -%}
+          <div class="is-pc">{{ pc_image_tag }}</div>
+        {%- endif -%}
+        {%- if sp_img != blank -%}
+          <div class="is-sp">{{ sp_image_tag }}</div>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
   {% endfor %}
 </section>
 
@@ -70,14 +95,25 @@
           "label": "SP用画像"
         },
         {
-          "type": "text",
+          "type": "url",
           "id": "link_url",
           "label": "リンクURL（共通）"
         },
         {
           "type": "text",
           "id": "alt_text",
-          "label": "altテキスト（共通）"
+          "label": "altテキスト（共通）",
+          "info": "未入力の場合は、画像自体に設定されたaltテキストが使用されます。"
+        },
+        {
+          "type": "header",
+          "content": "多言語設定"
+        },
+        {
+          "type": "text",
+          "id": "lang_code",
+          "label": "表示する言語コード",
+          "info": "例: ja, en, th。空欄の場合は全ての言語で表示されます。"
         }
       ]
     }
@@ -90,3 +126,47 @@
   ]
 }
 {% endschema %}
+
+<script>
+  // 即時実行関数で、このセクション専用のスコープを作成する
+  (function () {
+    // このセクションの要素を特定する
+    const currentSection = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!currentSection) return;
+
+    const findElementInterval = setInterval(() => {
+      // ユーザーの要望通り、最初の言語アイテムを探す
+      const langElement = document.querySelector('.ht-tms-dropdown__list-item');
+
+      if (langElement) {
+        const langCode = langElement.dataset.value;
+
+        // このセクション内のすべてのバナーを非表示にする
+        currentSection.querySelectorAll('.language-banner').forEach((banner) => {
+          banner.style.display = 'none';
+        });
+
+        // data-lang属性を使って、言語が一致する「すべての」バナーを探す
+        const targetBanners = currentSection.querySelectorAll(`[data-lang="${langCode}"]`);
+
+        if (targetBanners.length > 0) {
+          // 見つかったすべての言語指定バナーを表示する
+          targetBanners.forEach((banner) => {
+            banner.style.display = 'block';
+          });
+        } else {
+          // 言語指定のバナーがなければ、すべてのデフォルトバナーを表示する
+          const defaultBanners = currentSection.querySelectorAll('.default-banner');
+          defaultBanners.forEach((banner) => {
+            banner.style.display = 'block';
+          });
+        }
+
+        // 監視を終了する
+        clearInterval(findElementInterval);
+      } else {
+        console.log('要素を検索中 (Section: {{ section.id }})');
+      }
+    }, 1000);
+  })();
+</script>

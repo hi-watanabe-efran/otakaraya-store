@@ -1,0 +1,101 @@
+{% comment %}
+  sections/search-box-section.liquid
+  検索窓セクション（検索ボタンを虫眼鏡アイコンに変更）
+{% endcomment %}
+
+<style>
+  .search-box-section {
+    max-width: var(--page-width);
+    margin: 2rem auto -20px;
+    padding: 0px 40px;
+  }
+
+  .search-box-section .search-form {
+    display: flex;
+    align-items: center;
+    border: 1px solid #000000;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #ffffff;
+  }
+
+  .search-box-section .search-form:focus-within {
+    border-color: #333;
+    box-shadow: 0 0 0 1px #333;
+  }
+
+  .search-box-section .search-input {
+    border: none;
+    flex-grow: 1; /* 横幅いっぱいに広がる */
+    padding: 10px 15px;
+    font-size: 16px;
+    outline: none; /* フォーカス時の青い枠線を消す */
+    width: 100%;
+    background-color: #ffffff;
+  }
+
+  .search-box-section .search-icon-button {
+    background-color: transparent;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-box-section .search-icon-button .icon-search {
+    width: 20px;
+    height: 20px;
+    stroke: #333;
+  }
+
+  @media screen and (max-width: 749px) {
+    .search-box-section .search-box-section {
+      padding: 0px 32px;
+    }
+  }
+</style>
+
+<div class="search-box-section">
+  <form action="{{ routes.search_url }}" method="get" role="search" class="search-form">
+    <input
+      type="search"
+      name="q"
+      value="{{ search.terms | escape }}"
+      placeholder="ブランド・キーワードで探す"
+      class="search-input"
+      aria-label="ブランド・キーワードで探す"
+    >
+    <button type="submit" class="search-icon-button" aria-label="ブランド・キーワードで探す">
+      {% comment %} 虫眼鏡アイコンのSVG {% endcomment %}
+      <svg
+        class="icon-search"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </button>
+  </form>
+</div>
+
+{% schema %}
+{
+  "name": "検索ボックス",
+  "settings": [],
+  "presets": [
+    {
+      "name": "検索ボックス"
+    }
+  ]
+}
+{% endschema %}

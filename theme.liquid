@@ -1,9 +1,6 @@
 <!doctype html>
 <html class="js" lang="{{ request.locale.iso_code }}">
   <head>
-    <!-- Added by AVADA SEO Suite -->
-    {% include 'avada-seo' %}
-    <!-- /Added by AVADA SEO Suite -->
     <script>
       if (
         window.location.pathname === '/products' ||
@@ -22,6 +19,32 @@
         window.location.href = '/';
       }
     </script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0JB6LB330E"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+
+      gtag('config', 'G-0JB6LB330E');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != 'dataLayer' ? '&l=' + l : '';
+        j.async = true;
+        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, 'script', 'dataLayer', 'GTM-T3NRBJ4V');
+    </script>
+    <!-- End Google Tag Manager -->
 
     <!-- SplideのCSS CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
@@ -289,9 +312,119 @@
 
     {% if template == 'index' %}
       <style>
-        /* トップページだけのCSS */
         main {
           background: #f1f1ee;
+        }
+      </style>
+
+    {% elsif template == 'collection' %}
+      <script>
+        // ページ全体の変更を監視するオブザーバーを作成
+        const observer = new MutationObserver((mutationsList, observer) => {
+          // ▼ 修正点：クラス名を正しいものに変更 ▼
+          const elements = document.querySelectorAll('.boost-sd__filter-option-item-label');
+
+          // 要素が見つかったら処理を実行
+          if (elements.length > 0) {
+            elements.forEach((element) => {
+              // 要素のテキストに「sex:」が含まれているか確認（処理の重複を防ぐ）
+              // /sex:/i は大文字・小文字を区別しない
+              if (element.textContent.match(/sex:/i)) {
+                element.textContent = element.textContent.replace(/sex:/i, '').trim();
+              }
+            });
+          }
+        });
+
+        // オブザーバーの監視を開始
+        observer.observe(document.body, { childList: true, subtree: true });
+      </script>
+
+      <style>
+        /* コレクションページだけのCSS */
+
+        main {
+          background: #f1f1ee;
+        }
+
+        .boost-sd-container * {
+          font-family: 'Noto Sans JP' !important;
+        }
+        .boost-sd__filter-option-item-button--with-checkbox:before {
+          border-radius: 4px !important;
+          background-color: #f1f1ee !important;
+        }
+        .boost-sd__pagination-number--circle {
+          border-radius: 0 !important;
+          border: solid 1px #c0c0bd !important;
+          height: 48px !important;
+        }
+        .boost-sd__product-image-img {
+          display: block !important;
+        }
+        .boost-sd__product-item {
+          gap: 0 !important;
+          padding: 1rem !important;
+          margin: 6px !important;
+        }
+        .boost-sd__filter-tree-vertical-content {
+          background-color: white !important;
+          padding: 2rem !important;
+        }
+        .boost-sd__product-list {
+        }
+
+        .boost-sd__toolbar-content {
+          border-bottom: 1px solid #000000 !important;
+        }
+
+        .boost-sd__pagination-number--active {
+          background-color: #c0c0bd !important;
+        }
+        .boost-sd__filter-tree-vertical-mobile-toolbar .boost-sd__button--clear {
+          word-break: keep-all;
+        }
+
+        .boost-sd__filter-tree-vertical-mobile-toolbar {
+          padding: 10px 36px 9px !important;
+        }
+
+        @media only screen and (min-width: 992px) {
+          .boost-sd__filter-option:first-of-type {
+            padding-top: 2rem !important;
+          }
+        }
+
+        @media only screen and (min-width: 576px) {
+          .boost-sd__product-item-list-view-layout-cta-buttons .boost-sd__button {
+            min-width: 120px !important;
+            font-size: 16px !important;
+            padding: 0 !important;
+          }
+
+          .boost-sd__product-list.boost-sd__product-list-list-col {
+            gap: 12px !important;
+          }
+
+          .boost-sd__product-list-grid--3-col.boost-sd__product-list--margin .boost-sd__product-item {
+            width: calc(33.3333333333% - 16px) !important;
+          }
+
+          .boost-sd__product-list {
+            padding: 0 1rem !important;
+          }
+        }
+
+        @media only screen and (max-width: 575px) {
+          .boost-sd__sorting-button {
+            white-space: nowrap;
+          }
+        }
+
+        @media screen and (min-width: 750px) and (max-width: 989px) {
+          .boost-sd__filter-tree-vertical--right {
+            width: min(100vw - 60px) !important;
+          }
         }
       </style>
     {% endif %}
@@ -354,6 +487,16 @@
   </head>
 
   <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-T3NRBJ4V"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+      ></iframe
+    ></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ 'accessibility.skip_to_text' | t }}
     </a>
@@ -367,6 +510,9 @@
     <main id="MainContent" class="content-for-layout focus-none " role="main" tabindex="-1">
       {% section 'breadcrumbs' %}
       {{ content_for_layout }}
+      {% if template == 'collection' %}
+        {% section 'judge-app' %}
+      {%- endif -%}
     </main>
 
     {% sections 'footer-group' %}
@@ -421,6 +567,20 @@
       };
     </script>
 
+    <script>
+      setTimeout(function () {
+        var selectBox = document.querySelector('.jdgm-sort-dropdown');
+        if (selectBox) {
+          var optionsToRemove = ['with-pictures', 'pictures-first', 'videos-first', 'most-helpful'];
+          for (var i = selectBox.options.length - 1; i >= 0; i--) {
+            if (optionsToRemove.includes(selectBox.options[i].value)) {
+              selectBox.remove(i);
+            }
+          }
+        }
+      }, 2000);
+    </script>
+
     {%- if settings.predictive_search_enabled -%}
       <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
@@ -431,6 +591,32 @@
     {{ 'recently-viewed.js' | asset_url | script_tag }}
   </body>
 </html>
+
+<!-- sex:の単語を削除 -->
+{% if template == 'collection' %}
+  <script>
+    // ページ全体の変更を監視するオブザーバーを作成
+    const observer = new MutationObserver((mutationsList) => {
+      // 処理対象のクラスをすべて指定
+      const elements = document.querySelectorAll(
+        '.boost-sd__filter-option-item-label, .boost-sd__refine-by-vertical-refine-by-value, .boost-sd__filter-option-mobile-items-selected'
+      );
+
+      // 要素が見つかったら処理を実行
+      if (elements.length > 0) {
+        elements.forEach((element) => {
+          // 要素のテキストに「sex:」が含まれているか確認
+          if (element.textContent.match(/sex:/i)) {
+            element.textContent = element.textContent.replace(/sex:/i, '').trim();
+          }
+        });
+      }
+    });
+
+    // オブザーバーの監視を開始
+    observer.observe(document.body, { childList: true, subtree: true });
+  </script>
+{% endif %}
 
 <script>
   console.log('Current template: {{ template }}');

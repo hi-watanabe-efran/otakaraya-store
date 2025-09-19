@@ -1,0 +1,717 @@
+{% comment %}
+  sections/collection-filters-grid.liquid (v5.0 Boost URL同期対応 / 10k+ 対応)
+  - <=5k: Shopify標準フィルタ（collection.filters）を使用
+  - >5k: Boost があれば Boost のUI/検索に完全委譲
+      * Shopifyの filter.* パラメータを pf_* に自動変換し、/collections のままフィルタを適用（/searchへ遷移しない）
+      * 例: /collections/all?filter.p.product_type=〇〇 → /collections/all?pf_...=〇〇
+  - Boost が無い場合は /search?type=product&q=* へフォールバック
+  - カスタマイズ設定は不要、差し替えのみ
+  - サイドバーはページスクロールと同期（係数2.0で速く）
+{% endcomment %}
+
+<section id="section-{{ section.id }}" class="coll">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <form class="search" action="{{ routes.search_url }}" method="get" role="search">
+      <input type="hidden" name="type" value="product">
+      <input
+        class="search__input"
+        type="search"
+        name="q"
+        placeholder="ブランド・キーワードで探す"
+        value="{{ search.terms | default: '' }}"
+      >
+      <button class="search__btn" aria-label="検索">🔍</button>
+    </form>
+    <div class="toolbar__meta">
+      <div class="viewicons" aria-hidden="true">
+        <span class="vi vi--grid"></span>
+        <span class="vi vi--grid"></span>
+      </div>
+      <div class="count">
+        商品数 <strong>{{ collection.products_count }}</strong>
+      </div>
+      {% if collection.sort_options.size > 0 %}
+        <label class="sort"
+          >並び替え
+          <select id="SortBy-{{ section.id }}" class="ui-select">
+            {% for option in collection.sort_options %}
+              <option
+                value="{{ option.value }}"
+                {% if option.value == collection.sort_by %}
+                  selected
+                {% endif %}
+              >
+                {{ option.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- === Boost用フック (大規模時に使用) === -->
+    <div class="boost-hook" hidden>
+      <div class="boost-pfs-filter-wrapper">
+        <div class="boost-pfs-filter-tree"></div>
+        <div class="boost-pfs-filter-products"></div>
+      </div>
+    </div>
+
+    <!-- Sidebar Filters (標準/静的) -->
+    <aside class="sidebar" aria-label="絞り込み">
+      <div class="sidebar__scroller">
+        {% if collection.filters and collection.filters.size > 0 %}
+          {%- comment -%} ====== 動的（<=5k）: Search & Discoveryのfacetsを使用 ====== {%- endcomment -%}
+          {% assign availability_filter = null %}
+          {% assign vendor_filter = null %}
+          {% assign type_filter = null %}
+          {% assign price_filter = null %}
+          {% assign swatch_filter = null %}
+          {% for f in collection.filters %}
+            {% if f.type == 'price_range' %}
+              {% assign price_filter = f %}
+            {% elsif f.values.size > 0 %}
+              {% assign first = f.values | first %}
+              {% if first.param_name contains 'filter.v.availability' %}
+                {% assign availability_filter = f %}
+              {% elsif first.param_name contains 'filter.p.vendor' %}
+                {% assign vendor_filter = f %}
+              {% elsif first.param_name contains 'filter.p.product_type' %}
+                {% assign type_filter = f %}
+              {% endif %}
+              {% if swatch_filter == null %}
+                {% for v in f.values -%}
+                  {%- if v.swatch -%}
+                    {%- assign swatch_filter = f -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+
+          {% if availability_filter %}
+            <div class="block">
+              <div class="btn-group">
+                {% assign active_av = false %}
+                {% for v in availability_filter.active_values -%}
+                  {%- if v.value == '1' %}{% assign active_av = true %}{% endif -%}
+                {%- endfor %}
+                {% assign val_instock = availability_filter.values | where: 'value', '1' | first %}
+                <a class="btn {% if active_av %}is-primary{% endif %}" href="{{ val_instock.url_to_add }}">在庫あり</a>
+                <a class="btn" href="{{ availability_filter.url_to_remove }}">全ての商品</a>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if vendor_filter %}
+            <div class="block">
+              <div class="block__title">ブランド</div>
+              <ul class="checklist">
+                {% for val in vendor_filter.values %}
+                  <li>
+                    <a
+                      class="check {% if val.active %}is-active{% endif %}"
+                      href="{% if val.active %}{{ val.url_to_remove }}{% else %}{{ val.url_to_add }}{% endif %}"
+                      ><input
+                        type="checkbox"
+                        {% if val.active %}
+                          checked
+                        {% endif %}
+                        tabindex="-1"
+                        aria-hidden="true"
+
+                      ><span>{{ val.label }}</span></a
+                    >
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          {% if type_filter %}
+            <div class="block">
+              <div class="block__title">カテゴリ</div>
+              <ul class="checklist">
+                {% for val in type_filter.values %}
+                  <li>
+                    <a
+                      class="check {% if val.active %}is-active{% endif %}"
+                      href="{% if val.active %}{{ val.url_to_remove }}{% else %}{{ val.url_to_add }}{% endif %}"
+                      ><input
+                        type="checkbox"
+                        {% if val.active %}
+                          checked
+                        {% endif %}
+                        tabindex="-1"
+                        aria-hidden="true"
+
+                      ><span>{{ val.label }}</span></a
+                    >
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+          {% if price_filter %}
+            <div class="block">
+              <div class="block__title">価格帯</div>
+              <form class="price" data-price-form>
+                <div class="price__row">
+                  <label>指定なし</label>
+                  <select name="{{ price_filter.min_value.param_name }}" class="ui-select">
+                    <option value="">指定なし</option>
+                    <option
+                      value="1000"
+                      {% if price_filter.min_value.value == 1000 %}
+                        selected
+                      {% endif %}
+                    >
+                      ¥1,000〜
+                    </option>
+                    <option
+                      value="10000"
+                      {% if price_filter.min_value.value == 10000 %}
+                        selected
+                      {% endif %}
+                    >
+                      ¥10,000〜
+                    </option>
+                    <option
+                      value="30000"
+                      {% if price_filter.min_value.value == 30000 %}
+                        selected
+                      {% endif %}
+                    >
+                      ¥30,000〜
+                    </option>
+                    <option
+                      value="50000"
+                      {% if price_filter.min_value.value == 50000 %}
+                        selected
+                      {% endif %}
+                    >
+                      ¥50,000〜
+                    </option>
+                  </select>
+                </div>
+                <div class="price__row">
+                  <label>上限</label>
+                  <select name="{{ price_filter.max_value.param_name }}" class="ui-select">
+                    <option value="">指定なし</option>
+                    <option
+                      value="10000"
+                      {% if price_filter.max_value.value == 10000 %}
+                        selected
+                      {% endif %}
+                    >
+                      〜¥10,000
+                    </option>
+                    <option
+                      value="30000"
+                      {% if price_filter.max_value.value == 30000 %}
+                        selected
+                      {% endif %}
+                    >
+                      〜¥30,000
+                    </option>
+                    <option
+                      value="50000"
+                      {% if price_filter.max_value.value == 50000 %}
+                        selected
+                      {% endif %}
+                    >
+                      〜¥50,000
+                    </option>
+                    <option
+                      value="100000"
+                      {% if price_filter.max_value.value == 100000 %}
+                        selected
+                      {% endif %}
+                    >
+                      〜¥100,000
+                    </option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn--apply">適用</button>
+              </form>
+            </div>
+          {% endif %}
+
+          {% if swatch_filter %}
+            <div class="block">
+              <div class="block__title">カラー</div>
+              <div class="swatches">
+                {% for val in swatch_filter.values %}
+                  <a
+                    class="swatches__chip {% if val.active %}is-active{% endif %}"
+                    href="{% if val.active %}{{ val.url_to_remove }}{% else %}{{ val.url_to_add }}{% endif %}"
+                    title="{{ val.label }}"
+                    ><span class="dot" style="--c: {{ val.swatch.value | default: '#ccc' }}"></span
+                  ></a>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+        {% else %}
+          {%- comment -%} ====== 静的（>5k, Boost無）: URLに filter.* を付与して /search へ ====== {%- endcomment -%}
+          <div class="block">
+            <div class="btn-group">
+              <a class="btn" data-key="filter.v.availability" data-val="1">在庫あり</a>
+              <a class="btn" data-clear="filter.v.availability">全ての商品</a>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="block__title">ブランド</div>
+            <ul class="checklist">
+              {% assign vendors = shop.vendors | sort %}
+              {% for v in vendors limit: 20 %}
+                <li>
+                  <a class="check" data-key="filter.p.vendor" data-val="{{ v | escape }}"
+                    ><input type="checkbox" tabindex="-1" aria-hidden="true"><span>{{ v }}</span></a
+                  >
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="block">
+            <div class="block__title">カテゴリ</div>
+            <ul class="checklist">
+              {% assign types = shop.types | sort %}
+              {% for t in types limit: 20 %}
+                <li>
+                  <a class="check" data-key="filter.p.product_type" data-val="{{ t | escape }}"
+                    ><input type="checkbox" tabindex="-1" aria-hidden="true"><span>{{ t }}</span></a
+                  >
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="block">
+            <div class="block__title">価格帯</div>
+            <form class="price" data-price-form>
+              <div class="price__row">
+                <label>指定なし</label>
+                <select name="filter.v.price.gte" class="ui-select">
+                  <option value="">指定なし</option>
+                  <option value="1000">¥1,000〜</option>
+                  <option value="10000">¥10,000〜</option>
+                  <option value="30000">¥30,000〜</option>
+                  <option value="50000">¥50,000〜</option>
+                </select>
+              </div>
+              <div class="price__row">
+                <label>上限</label>
+                <select name="filter.v.price.lte" class="ui-select">
+                  <option value="">指定なし</option>
+                  <option value="10000">〜¥10,000</option>
+                  <option value="30000">〜¥30,000</option>
+                  <option value="50000">〜¥50,000</option>
+                  <option value="100000">〜¥100,000</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn--apply">適用</button>
+            </form>
+          </div>
+
+          <div class="block">
+            <div class="block__title">カラー</div>
+            <div class="swatches">
+              {% assign colors = '#000000:black,#666666:gray,#FFFFFF:white,#D32F2F:red,#F57C00:orange,#FBC02D:yellow,#43A047:green,#1E88E5:blue,#6A1B9A:purple,#795548:brown,#BCA449:gold,#B0BEC5:silver'
+                | split: ','
+              %}
+              {% for c in colors %}
+                {% assign pair = c | split: ':' %}
+                <a class="swatches__chip" data-option="color" data-val="{{ pair[1] }}" title="{{ pair[1] }}"
+                  ><span class="dot" style="--c: {{ pair[0] }}"></span
+                ></a>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="note">
+            ※ 大規模コレクションでは検索ページにフォールバックします。Boost導入時は自動でBoostに切替。
+          </div>
+        {% endif %}
+      </div>
+    </aside>
+
+    <!-- Product Grid (標準レンダリング) -->
+    <div class="grid">
+      {% paginate collection.products by 24 %}
+        {% for product in collection.products %}
+          <article class="card">
+            <a href="{{ product.url }}" class="card__img">
+              {% if product.featured_media %}
+                {{
+                  product.featured_media
+                  | image_url: width: 700
+                  | image_tag: loading: 'lazy', sizes: '(min-width: 1000px) 23vw, 45vw'
+                }}
+              {% endif %}
+            </a>
+            <div class="card__body">
+              <h3 class="card__title">
+                <a href="{{ product.url }}">{{ product.title }}</a>
+              </h3>
+              <div class="card__price">
+                <span class="price">
+                  {{- product.price | money -}}
+                  <small> (税込)</small></span
+                >
+              </div>
+              <a class="btn btn--buy" href="{{ product.url }}">購入する</a>
+            </div>
+          </article>
+        {% else %}
+          <p>該当する商品がありません。</p>
+        {% endfor %}
+        <nav class="pager">{{ paginate | default_pagination }}</nav>
+      {% endpaginate %}
+    </div>
+  </div>
+</section>
+
+<style>
+  #section-{{ section.id }}{--bg:#f2f2f2; --card:#fff; --text:#111; --mute:#777; --border:#ddd; --btn:#7d7d7d; --btn-text:#fff; --radius:12px}
+  #section-{{ section.id }} .coll{background:var(--bg); padding:12px}
+  /* Toolbar */
+  #section-{{ section.id }} .toolbar{display:grid; grid-template-columns: 1fr auto; gap:16px; align-items:center; background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:8px 12px; margin-bottom:12px}
+  #section-{{ section.id }} .search{display:flex; align-items:center; gap:8px}
+  #section-{{ section.id }} .search__input{width:100%; height:36px; padding:0 12px; border:1px solid var(--border); border-radius:8px}
+  #section-{{ section.id }} .search__btn{height:36px; padding:0 10px; border:1px solid var(--border); background:#fff; border-radius:8px; cursor:pointer}
+  #section-{{ section.id }} .toolbar__meta{display:flex; align-items:center; gap:16px}
+  #section-{{ section.id }} .viewicons{display:flex; gap:8px}
+  #section-{{ section.id }} .vi{width:22px; height:18px; display:inline-block; border:1px solid var(--border); background:linear-gradient(90deg,#e9e9e9 50%,transparent 0) left/8px 100% repeat-x; border-radius:4px}
+  #section-{{ section.id }} .count{color:var(--mute)}
+  #section-{{ section.id }} .sort{display:flex; align-items:center; gap:8px; color:var(--mute)}
+  #section-{{ section.id }} .ui-select{min-width:160px; height:32px}
+
+  /* Layout */
+  #section-{{ section.id }} .wrap{display:grid; grid-template-columns: 300px 1fr; gap:16px}
+  /* Sidebar */
+  #section-{{ section.id }} .sidebar{align-self:start; position:sticky; top:10px; max-height:calc(100vh - 20px)}
+  #section-{{ section.id }} .sidebar__scroller{max-height:calc(100vh - 20px); overflow:auto; overscroll-behavior:contain; padding-right:6px}
+  #section-{{ section.id }} .block{background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:12px; margin-bottom:12px}
+  #section-{{ section.id }} .block__title{font-weight:700; margin-bottom:8px}
+  #section-{{ section.id }} .btn-group{display:flex; gap:8px}
+  #section-{{ section.id }} .btn{display:inline-flex; align-items:center; justify-content:center; height:32px; padding:0 12px; border-radius:6px; border:1px solid var(--border); background:#fff; color:var(--text); text-decoration:none}
+  #section-{{ section.id }} .btn.is-primary{background:var(--btn); color:var(--btn-text); border-color:var(--btn)}
+  #section-{{ section.id }} .btn--apply{width:100%; margin-top:8px; background:var(--btn); color:var(--btn-text); border-color:var(--btn)}
+  #section-{{ section.id }} .checklist{list-style:none; margin:0; padding:0; display:grid; gap:6px}
+  #section-{{ section.id }} .check{display:flex; align-items:center; gap:8px; padding:6px 8px; color:var(--text); text-decoration:none; border-radius:6px}
+  #section-{{ section.id }} .check:hover{background:#f7f7f7}
+  #section-{{ section.id }} .check.is-active{background:#111; color:#fff}
+  #section-{{ section.id }} .price__row{display:flex; align-items:center; gap:8px; margin:6px 0}
+  #section-{{ section.id }} .swatches{display:grid; grid-template-columns: repeat(6, 1fr); gap:8px}
+  #section-{{ section.id }} .swatches__chip{display:flex; align-items:center; justify-content:center; width:32px; height:32px; border:1px solid var(--border); border-radius:50%; background:#fff; text-decoration:none}
+  #section-{{ section.id }} .swatches__chip.is-active{outline:2px solid #111}
+  #section-{{ section.id }} .dot{display:block; width:20px; height:20px; border-radius:50%; background:var(--c,#ccc); border:1px solid #cfcfcf}
+  /* Grid */
+  #section-{{ section.id }} .grid{display:grid; grid-template-columns: repeat(3, 1fr); gap:16px}
+  #section-{{ section.id }} .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column}
+  #section-{{ section.id }} .card__img img{width:100%; height:auto; display:block}
+  #section-{{ section.id }} .card__body{padding:12px; display:grid; gap:8px}
+  #section-{{ section.id }} .card__title{font-size:14px; margin:0}
+  #section-{{ section.id }} .card__price{color:var(--text)}
+  #section-{{ section.id }} .btn--buy{background:#7b7b7b; color:#fff; text-align:center; padding:10px 12px; border-radius:6px; text-decoration:none}
+  #section-{{ section.id }} .pager{margin-top:16px}
+  #section-{{ section.id }} .note{font-size:12px; color:#777}
+
+  /* Boost hook layout */
+  #section-{{ section.id }} .boost-hook .boost-pfs-filter-wrapper{display:grid; grid-template-columns:300px 1fr; gap:16px}
+  #section-{{ section.id }} .boost-pfs-filter-tree{position:sticky; top:10px; max-height:calc(100vh - 20px); overflow:auto; overscroll-behavior:contain; padding-right:6px}
+  @media (max-width: 959px){
+    #section-{{ section.id }} .wrap{grid-template-columns:1fr}
+    #section-{{ section.id }} .grid{grid-template-columns: repeat(2, 1fr)}
+    #section-{{ section.id }} .sidebar{position:static; max-height:none}
+    #section-{{ section.id }} .sidebar__scroller{max-height:none}
+    #section-{{ section.id }} .boost-hook .boost-pfs-filter-wrapper{grid-template-columns:1fr}
+    #section-{{ section.id }} .boost-pfs-filter-tree{position:static; max-height:none}
+  }
+</style>
+
+<script>
+  // ===== runtime flags =====
+  var __COLLECTION_COUNT__ = {{ collection.products_count | default: 0 }};
+  var __DYNAMIC_MODE__ = {% if collection.filters and collection.filters.size > 0 %}true{% else %}false{% endif %};
+  function hasBoost(){
+    return !!(window.boostSDAppConfig || window.boostPFSThemeConfig || document.querySelector('script[src*="boost"][src*="filter"]'));
+  }
+  function isBoostMode(){ return (__COLLECTION_COUNT__ > 5000) && hasBoost(); }
+
+  // ===== base URL builder (keeps current filter.*, sort_by, q) =====
+  function buildBaseUrl(){
+    var base;
+    if (__DYNAMIC_MODE__) {
+      base = new URL('{{ collection.url }}', location.origin);
+    } else {
+      if (isBoostMode()) {
+        base = new URL(location.href);
+      } else {
+        base = new URL('{{ routes.search_url }}', location.origin);
+        base.searchParams.set('type','product');
+        base.searchParams.set('q','*');
+      }
+    }
+    var cur  = new URL(location.href);
+    cur.searchParams.forEach(function(val, key){
+      if(key.startsWith('filter.') || key === 'sort_by' || key === 'q'){
+        base.searchParams.set(key, val);
+      }
+    });
+    return base;
+  }
+
+  // ===== sort handler =====
+  (function(){
+    var el = document.getElementById('SortBy-{{ section.id }}');
+    if(!el) return;
+    el.addEventListener('change', function(){
+      var base = buildBaseUrl();
+      base.searchParams.set('sort_by', this.value);
+      base.searchParams.delete('page');
+      location.assign(base.toString());
+    });
+  })();
+
+  // ===== price forms (both dynamic & static) =====
+  (function(){
+    document.querySelectorAll('#section-{{ section.id }} form[data-price-form]').forEach(function(form){
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        var base = buildBaseUrl();
+        var fd = new FormData(form);
+        ['filter.v.price.gte','filter.v.price.lte'].forEach(function(k){
+          var val = fd.get(k);
+          if(!val){ base.searchParams.delete(k); } else { base.searchParams.set(k, val); }
+        });
+        base.searchParams.delete('page');
+        location.assign(base.toString());
+      });
+    });
+  })();
+
+  // ===== static sidebar links (vendor/type/color, multi-select toggle) =====
+  (function(){
+    var root = document.getElementById('section-{{ section.id }}');
+    if(!root) return;
+    root.addEventListener('click', function(e){
+      if (isBoostMode()) return; // Boost時は自前リンク無効（下のURL同期で処理）
+      var a = e.target.closest('[data-key],[data-clear],[data-option]');
+      if(!a) return;
+      e.preventDefault();
+      var base = buildBaseUrl();
+      if(a.dataset.key){
+        var k = a.dataset.key, v = a.dataset.val || '';
+        if(/^filter\.p\.(vendor|product_type)$/.test(k)){
+          var cur = base.searchParams.get(k);
+          var arr = cur ? cur.split(',') : [];
+          var i = arr.indexOf(v);
+          if(i>=0){ arr.splice(i,1); } else { arr.push(v); }
+          if(arr.length){ base.searchParams.set(k, arr.join(',')); } else { base.searchParams.delete(k); }
+        } else {
+          base.searchParams.set(k, v);
+        }
+      }
+      if(a.dataset.clear){ base.searchParams.delete(a.dataset.clear); }
+      if(a.dataset.option){
+        var ok = 'filter.v.option.' + a.dataset.option;
+        var ov = a.dataset.val || '';
+        var cur2 = base.searchParams.get(ok);
+        var arr2 = cur2 ? cur2.split(',') : [];
+        var j = arr2.indexOf(ov);
+        if(j>=0){ arr2.splice(j,1); } else { arr2.push(ov); }
+        if(arr2.length){ base.searchParams.set(ok, arr2.join(',')); } else { base.searchParams.delete(ok); }
+      }
+      base.searchParams.delete('page');
+      location.assign(base.toString());
+    });
+  })();
+
+  // ===== sidebar scroll sync (faster than page scroll) =====
+  (function(){
+    function bindSync(scroller, factor){
+      if(!scroller) return;
+      function sync(){
+        if(window.innerWidth < 960) return; // disable on mobile
+        var doc = document.documentElement;
+        var winH = window.innerHeight;
+        var maxPage = Math.max(0, doc.scrollHeight - winH);
+        var ratio = maxPage ? (window.pageYOffset || doc.scrollTop) / maxPage : 0;
+        var maxSide = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+        scroller.scrollTop = Math.min(maxSide, Math.max(0, ratio * maxSide * factor));
+      }
+      window.addEventListener('scroll', sync, {passive:true});
+      window.addEventListener('resize', sync);
+      document.addEventListener('DOMContentLoaded', sync);
+      sync();
+    }
+    // 標準サイドバー
+    bindSync(document.querySelector('#section-{{ section.id }} .sidebar__scroller'), 2.0);
+  })();
+
+  // ===== Boost連携: 大規模かつBoost検知で、BoostのUIに切替 + URL同期 =====
+  (function(){
+    if(!isBoostMode()) return;
+
+    // 1) Shopify filter.* → Boost pf_* へ変換して同一URLで再読込（deep link）
+    try{
+      var url = new URL(location.href);
+      var hasShopifyFilters = Array.from(url.searchParams.keys()).some(function(k){ return k.indexOf('filter.') === 0; });
+      var hasBoostFilters = Array.from(url.searchParams.keys()).some(function(k){ return k.indexOf('pf_') === 0; });
+      if(hasShopifyFilters && !hasBoostFilters){
+        // フィルター木を取得して pf_* のID を把握（JSONP）
+        var shop = '{{ shop.permanent_domain }}';
+        var coll = {{ collection.id }};
+        var cb = '__boostPrefill_{{ section.id | replace: '-', '_' }}_' + Date.now();
+        window[cb] = function(resp){
+          try{
+            var options = (resp && resp.filter && resp.filter.options) || [];
+            function findIdByType(type){
+              var o = options.find(function(x){ return (x && x.filterType) === type; });
+              return o ? o.filterOptionId : null;
+            }
+            function findOptionIdByLabel(label){
+              var key = (label||'').toLowerCase();
+              var o = options.find(function(x){ return (x && (x.filterType||'').indexOf('option')===0) && ((x.label||'').toLowerCase()===key); });
+              return o ? o.filterOptionId : null;
+            }
+            function findIdContains(token){
+              var o = options.find(function(x){ return (x && (x.filterOptionId||'').indexOf(token)>=0); });
+              return o ? o.filterOptionId : null;
+            }
+            var pfVendor = findIdByType('vendor');
+            var pfType   = findIdByType('product_type');
+            var pfPrice  = findIdByType('price') || 'pf_p_price'; // 既定キー
+            var pfAvail  = findIdContains('availability'); // pf_st_availability 想定
+            // === 値を変換 ===
+            var changed = false;
+            function setOrDel(key, val){
+              if(!key) return;
+              if(val===null || val===undefined || val===''){ url.searchParams.delete(key); return; }
+              url.searchParams.set(key, val); changed = true;
+            }
+            // vendor
+            var vVendor = url.searchParams.get('filter.p.vendor');
+            if(vVendor && pfVendor){ setOrDel(pfVendor, vVendor); }
+            // product_type（カンマ区切り対応）
+            var vType = url.searchParams.get('filter.p.product_type');
+            if(vType && pfType){ setOrDel(pfType, vType); }
+            // price gte/lte → min:max
+            var gte = url.searchParams.get('filter.v.price.gte');
+            var lte = url.searchParams.get('filter.v.price.lte');
+            if(gte || lte){
+              var min = gte ? String(parseFloat(gte)||0) : '';
+              var max = lte ? String(parseFloat(lte)||'') : '';
+              setOrDel(pfPrice, (min||'') + ':' + (max||''));
+            }
+            // availability 1/0 → in-stock/out-of-stock
+            var av = url.searchParams.get('filter.v.availability');
+            if(av && pfAvail){
+              var key = (av === '1') ? 'in-stock' : 'out-of-stock';
+              setOrDel(pfAvail, key);
+            }
+            // variant options e.g. filter.v.option.color=red,blue
+            Array.from(url.searchParams.keys()).forEach(function(k){
+              var m = k.match(/^filter\.v\.option\.(.+)$/);
+              if(!m) return; var name = m[1];
+              var val = url.searchParams.get(k); if(!val) return;
+              var pfOpt = findOptionIdByLabel(name);
+              if(pfOpt){ setOrDel(pfOpt, val); }
+            });
+            // tags (オプション) → 最初のtag型に流す
+            var vTag = url.searchParams.get('filter.p.tag');
+            if(vTag){
+              var pfTag = (options.find(function(x){ return x.filterType==='tag'; })||{}).filterOptionId;
+              if(pfTag){ setOrDel(pfTag, vTag); }
+            }
+            if(changed){
+              // 元の filter.* はクリーンアップ
+              Array.from(url.searchParams.keys()).forEach(function(k){ if(k.indexOf('filter.')===0){ url.searchParams.delete(k); }});
+              // ページ番号はリセット
+              url.searchParams.delete('page');
+              // 置換（同一コレクションのまま再読込→Boostがpf_*を読み取って適用）
+              location.replace(url.toString());
+              return; // ここで終了
+            }
+          } catch(e) { console.warn('Boost prefill error', e); }
+        };
+        var s = document.createElement('script');
+        s.src = 'https://services.mybcapps.com/bc-sf-filter/filter?shop=' + encodeURIComponent(shop) + '&collection_scope=' + encodeURIComponent(coll) + '&limit=1&build_filter_tree=true&callback=' + cb;
+        document.head.appendChild(s);
+      }
+    } catch(e){ console.warn(e); }
+
+    // 2) UI切替：Boostに委譲
+    var section = document.getElementById('section-{{ section.id }}');
+    if(!section) return;
+    var sidebar = section.querySelector('.sidebar');
+    var grid = section.querySelector('.grid');
+    var hook = section.querySelector('.boost-hook');
+    if (sidebar) sidebar.style.display = 'none';
+    if (grid) grid.style.display = 'none';
+    if (hook) hook.hidden = false;
+
+    // 件数表示をBoostの結果で更新
+    function hookCountUpdater(){
+      try{
+        if(window.FilterResult && !window.__boostCountHooked){
+          window.__boostCountHooked = true;
+          var orig = FilterResult.prototype.afterRender;
+          FilterResult.prototype.afterRender = function(){
+            var total = (this && this.data && (this.data.total_product || this.data.totalProduct)) || null;
+            var el = section.querySelector('.count strong');
+            if(el && total != null) el.textContent = total;
+            if(orig) return orig.apply(this, arguments);
+          };
+        }
+      }catch(e){}
+    }
+    hookCountUpdater();
+    document.addEventListener('DOMContentLoaded', hookCountUpdater);
+
+    // Boost側ツリーにもスクロール同期
+    (function waitTree(){
+      var tree = section.querySelector('.boost-pfs-filter-tree');
+      if(tree){
+        (function bind(){
+          function sync(){
+            if(window.innerWidth < 960) return;
+            var doc = document.documentElement;
+            var winH = window.innerHeight;
+            var maxPage = Math.max(0, doc.scrollHeight - winH);
+            var ratio = maxPage ? (window.pageYOffset || doc.scrollTop) / maxPage : 0;
+            var maxSide = Math.max(0, tree.scrollHeight - tree.clientHeight);
+            tree.scrollTop = Math.min(maxSide, Math.max(0, ratio * maxSide * 2.0));
+          }
+          window.addEventListener('scroll', sync, {passive:true});
+          window.addEventListener('resize', sync);
+          document.addEventListener('DOMContentLoaded', sync);
+          sync();
+        })();
+      } else {
+        setTimeout(waitTree, 300);
+      }
+    })();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "カスタムコレクション",
+  "tag": "section",
+  "class": "section",
+  "templates": ["collection"],
+  "settings": [],
+  "presets": [{ "name": "カスタムコレクション", "category": "Collection" }]
+}
+{% endschema %}
